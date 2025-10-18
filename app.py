@@ -2,11 +2,9 @@ from flask import Flask, request, jsonify, render_template, send_from_directory
 import sqlite3
 import requests
 import json
-import os
 
 app = Flask(__name__)
 
-# Конфигурация API
 FNS_API_URL = "https://api-fns.ru/api/search"
 FNS_API_KEY = "c35fe9f432d553652e59bb7edfdcb4137f64cfe0"
 LLM_API_URL = "http://10.250.12.109:8080/api/chat/completions"
@@ -67,17 +65,18 @@ def api_parse():
         resp = requests.post(LLM_API_URL, headers=headers, json=payload, timeout=60)
         resp.raise_for_status()
         result = resp.json()
-        json_text = result['choices'][0]['message']['content'].strip()
-        # Очистка возможных Markdown кодовых блоков
-        json_text = result['choices'][0]['message']['content'].strip()
-        if json_text.startswith("```
-            json_text = json_text```json"):].strip()
-            if json_text.endswith("```
-                json_text = json_text[:-3].strip()
-        elif json_text.startswith("```"):
-            json_text = json_text[3:].strip()
-            if json_text.endswith("```
-                json_text = json_text[:-3].strip()
+        json_text = result['choices']['message']['content'].strip()
+
+        # Убираем Markdown кодовые блоки (``` или ```
+        if json_text.startswith('```json'):
+            json_text = json_text[7:]
+        elif json_text.startswith('```
+            json_text = json_text[3:]
+        json_text = json_text.strip()
+        if json_text.endswith('```'):
+            json_text = json_text[:-3].strip()
+
+        parsed = json.loads(json_text)
         return jsonify(parsed)
     except Exception as e:
         return jsonify({'error': f'LLM parsing error: {e}'}), 500
