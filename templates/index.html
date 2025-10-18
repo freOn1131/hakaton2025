@@ -868,23 +868,34 @@
 
         function displayAPIResults(results, provider) {
             searchLoading.classList.remove('show');
-            if (results.length === 0) {
-                searchResults.innerHTML = '<p>❌ Организации не найдены в API</p>';
+            
+            if (!results || results.length === 0) {
+                searchResults.innerHTML = '<p>❌ Организации не найдены</p>';
                 return;
             }
-            const html = results.map(org => `
-                <div class="organization-card" onclick="showOrganizationDetailsFromAPI('${org.ЮЛ.ИНН}', arguments[0])">
-                    <h3>${org.ЮЛ.НаимСокрЮЛ || org.ЮЛ.НаимПолнЮЛ}</h3>
-                    <p><strong>ИНН:</strong> ${org.ЮЛ.ИНН}</p>
-                    <p><strong>Адрес:</strong> ${org.ЮЛ.АдресПолн || 'Не указан'}</p>
-                    <p><strong>Статус:</strong> ${org.ЮЛ.Статус || 'Не указан'}</p>
-                    <p><strong>Директор:</strong> ${org.ЮЛ.Руководитель || 'Не указан в этом ответе API'}</p>
-                    <p><strong>Основной вид деят.:</strong> ${org.ЮЛ.ОснВидДеят || 'Не указан'}</p>
-                    <p style="color: #1e3a8a; font-size: 12px;">Источник: ${provider.toUpperCase()}</p>
-                </div>
-            `).join('');
-            searchResults.innerHTML = `<h3>✅ Результаты API поиска (${results.length}):</h3>${html}`;
+            
+            const html = results.map(item => {
+                // Извлекаем из объекта ЮЛ
+                const org = item.ЮЛ || item;
+                
+                return `
+                    <div class="organization-card" style="border: 1px solid #ddd; padding: 20px; margin: 15px 0; border-radius: 8px;">
+                        <h4>${org.НаимСокрЮЛ || org.НаимПолнЮЛ || 'Название не указано'}</h4>
+                        <p><strong>ИНН:</strong> ${org.ИНН || 'Не указан'}</p>
+                        <p><strong>Адрес:</strong> ${org.АдресПолн || 'Не указан'}</p>
+                        <p><strong>Статус:</strong> ${org.Статус || 'Не указан'}</p>
+                        
+                        <button onclick='saveFromFNS(${JSON.stringify(org).replace(/'/g, "\\'")})'
+                                style="padding: 10px 20px; background: #2ecc71; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">
+                            💾 Сохранить в БД
+                        </button>
+                    </div>
+                `;
+            }).join('');
+            
+            searchResults.innerHTML = `<h3>✅ Найдено: ${results.length}</h3>${html}`;
         }
+
 
         function displayDatabaseResults(results) {
             if (results.length === 0) {
