@@ -1520,7 +1520,7 @@
                 return;
             }
             currentIndustry = industry;
-            generateIndustryReport(industry);
+            (industry);
         });
         exportPdfBtn.addEventListener('click', () => {
             if (!currentIndustry) {
@@ -1569,6 +1569,26 @@
                 return;
             }
             const html = `
+                <div class="charts-container">
+                    <div class="chart-box">
+                        <h3>Распределение выручки по организациям</h3>
+                        <div class="chart-container">
+                            <canvas id="industryPieChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <h3>Среднее количество сотрудников</h3>
+                        <div class="chart-container">
+                            <canvas id="industryEmployeesChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <h3>Динамика выручки отрасли</h3>
+                        <div class="chart-container">
+                            <canvas id="industryTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
                 <div class="dashboard">
                     <div class="stats-card">
                         <div class="stats-number">${data.count}</div>
@@ -1621,25 +1641,47 @@
                     existingChart.destroy();
                 }
             };
+        
             destroyChart('industryPieChart');
             destroyChart('industryEmployeesChart');
             destroyChart('industryTrendChart');
-
+        
             const colors = ['#1FB8CD', '#FFC185', '#B4413C', '#ECEBD5', '#5D878F'];
-            const years = [2020, 2021, 2022, 2023, 2024];
-            const trendData = [data.total_revenue * 0.7, data.total_revenue * 0.8, data.total_revenue * 0.9, data.total_revenue * 0.95, data.total_revenue];
-
-            new Chart(document.getElementById('industryTrendChart'), {
-                type: 'line',
+        
+            // Pie Chart - Revenue Distribution
+            new Chart(document.getElementById('industryPieChart'), {
+                type: 'pie',
                 data: {
-                    labels: years,
+                    labels: data.organizations.map(org => org.name),
                     datasets: [{
-                        label: 'Выручка отрасли',
-                        data: trendData,
-                        borderColor: '#8e5ea2',
-                        backgroundColor: 'rgba(142, 94, 162, 0.1)',
-                        tension: 0.4,
-                        fill: true
+                        data: data.organizations.map(org => org.revenue),
+                        backgroundColor: colors.slice(0, data.organizations.length),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        
+            // Bar Chart - Employees
+            new Chart(document.getElementById('industryEmployeesChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.organizations.map(org => org.name),
+                    datasets: [{
+                        label: 'Сотрудники',
+                        data: data.organizations.map(org => org.employees),
+                        backgroundColor: '#3e95cd',
+                        borderColor: '#1e3a8a',
+                        borderWidth: 1
                     }]
                 },
                 options: {
@@ -1651,9 +1693,42 @@
                         }
                     },
                     scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+                        y: { beginAtZero: true },
+                        x: { ticks: { maxRotation: 45 } }
+                    }
+                }
+            });
+        
+            // Line Chart - Revenue Trend
+            const years = [2020, 2021, 2022, 2023, 2024];
+            const trendData = [
+                data.total_revenue * 0.7,
+                data.total_revenue * 0.8,
+                data.total_revenue * 0.9,
+                data.total_revenue * 0.95,
+                data.total_revenue
+            ];
+            new Chart(document.getElementById('industryTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: 'Выручка отрасли (млн руб.)',
+                        data: trendData,
+                        borderColor: '#8e5ea2',
+                        backgroundColor: 'rgba(142, 94, 162, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
                     }
                 }
             });
