@@ -9,277 +9,316 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        :root {
-            --primary-color: #1e3a8a;
-            --primary-light: #3b82f6;
-            --secondary-color: #6b7280;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --error-color: #ef4444;
-            --background: #f9fafb;
-            --surface: #ffffff;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --border: #e5e7eb;
-            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --radius: 8px;
-        }
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
+
         body {
-            font-family: 'Arial', 'Helvetica', sans-serif;
-            background-color: var(--background);
-            color: var(--text-primary);
-            line-height: 1.6;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: white;
         }
+
+        .header {
+            background: #1e3a8a;
+            color: white;
+            padding: 15px 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
         .container {
+            padding: 30px;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
         }
-        .header {
-            background: var(--surface);
-            padding: 15px 0;
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-        }
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header h1 {
-            color: var(--primary-color);
-            font-size: 24px;
-        }
+
         .login-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-        }
-        .auth-form {
-            background: var(--surface);
-            padding: 40px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-lg);
-            width: 100%;
             max-width: 400px;
+            margin: 5rem auto;
+            padding: 2rem;
+            background: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .auth-form h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: var(--primary-color);
-        }
+
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 1rem;
         }
+
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 0.5rem;
             font-weight: 500;
         }
-        .form-control {
+
+        .form-group input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 14px;
-            transition: border-color 0.3s;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
         }
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
+
         .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: var(--primary-color);
+            padding: 10px 20px;
+            background: #1e3a8a;
             color: white;
             border: none;
-            border-radius: var(--radius);
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: background-color 0.3s;
+            font-size: 16px;
+            margin: 5px;
+            transition: background 0.3s;
         }
+
         .btn:hover {
-            background: var(--primary-light);
+            background: #152d6b;
         }
+
         .btn-secondary {
-            background: var(--secondary-color);
+            background-color: #6b7280;
         }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
         .btn-success {
-            background-color: var(--success-color);
+            background-color: #10b981;
         }
+
         .btn-success:hover {
-            background-color: #049669;
+            background-color: #059669;
         }
+
         .btn-full {
             width: 100%;
+            margin-bottom: 1rem;
         }
-        .auth-link {
-            text-align: center;
-            margin-top: 20px;
+
+        .navigation {
+            background: #f0f0f0;
+            padding: 0;
+            display: flex;
         }
-        .auth-link a {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-        .main-app {
-            display: none;
-        }
-        .main-app.active {
-            display: block;
-        }
+
         .nav-tabs {
             display: flex;
-            gap: 0;
-            margin: 20px 0;
-            border-bottom: 1px solid var(--border);
+            width: 100%;
         }
+
         .nav-tab {
-            padding: 15px 25px;
-            background: none;
+            padding: 15px 30px;
             border: none;
+            background: transparent;
             cursor: pointer;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s;
+            font-size: 16px;
+            transition: background 0.3s;
+            flex: 1;
+            text-align: center;
         }
-        .nav-tab.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-        }
+
         .nav-tab:hover {
-            color: var(--primary-color);
+            background: #ddd;
         }
+
+        .nav-tab.active {
+            background: white;
+            border-bottom: 3px solid #1e3a8a;
+        }
+
         .tab-content {
             display: none;
+            padding: 2rem 0;
         }
+
         .tab-content.active {
             display: block;
         }
-        .card {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-            margin-bottom: 20px;
-        }
+
         .search-section {
-            margin-bottom: 20px;
+            background: #f9f9f9;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
         }
+
         .form-row {
             display: flex;
             gap: 1rem;
             margin-bottom: 1rem;
             align-items: end;
         }
+
         .form-row > div {
             flex: 1;
         }
+
+        input[type="text"], select, textarea {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        table {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            font-weight: bold;
+        }
+
+        .file-input {
+            margin-bottom: 1rem;
+        }
+
+        .file-info {
+            margin-top: 0.5rem;
+            font-style: italic;
+            color: #666;
+        }
+
         .organization-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
             padding: 1.5rem;
             margin-bottom: 1rem;
-            box-shadow: var(--shadow);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
+
         .organization-card:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
+
         .organization-details {
-            background: var(--surface);
+            background: #f9f9f9;
             padding: 2rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            border-radius: 10px;
             margin-top: 2rem;
         }
+
         .details-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
         }
+
         .detail-item {
-            background: #f8fafc;
+            background: white;
             padding: 1rem;
             border-radius: 5px;
         }
+
         .detail-item strong {
-            color: var(--primary-color);
+            color: #1e3a8a;
         }
+
         .charts-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 2rem;
             margin-top: 2rem;
         }
+
         .chart-box {
-            background: var(--surface);
+            background: white;
             padding: 1.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .chart-box h3 {
             margin-bottom: 1rem;
-            color: var(--primary-color);
+            color: #1e3a8a;
         }
+
         .chart-container {
-            background: var(--surface);
-            padding: 20px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            height: 350px;
-        }
-        .chart-container h3 {
-            margin-bottom: 15px;
-            color: var(--text-primary);
-            font-size: 16px;
-        }
-        .chart-canvas {
             position: relative;
-            height: calc(100% - 40px);
+            height: 300px;
         }
-        .file-input {
-            border: 2px dashed var(--border);
-            border-radius: var(--radius);
-            padding: 40px;
-            text-align: center;
+
+        .dashboard-card, .stat-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
             margin-bottom: 20px;
-            transition: border-color 0.3s;
         }
-        .file-input:hover {
-            border-color: var(--primary-color);
+
+        .stats-card {
+            text-align: center;
         }
-        .file-input input[type="file"] {
-            display: none;
+
+        .stats-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
         }
-        .file-label {
-            cursor: pointer;
-            color: var(--primary-color);
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #1e3a8a;
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
         .loading {
             display: none;
             text-align: center;
             padding: 2rem;
         }
+
         .loading.show {
             display: block;
         }
+
         .processed-data {
             background: #e8f5e8;
             padding: 1.5rem;
@@ -287,22 +326,26 @@
             margin-top: 1rem;
             white-space: pre-wrap;
         }
+
         .edit-form {
-            background: var(--surface);
+            background: white;
             padding: 2rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-top: 1rem;
             display: none;
         }
+
         .edit-form.show {
             display: block;
         }
+
         .edit-form .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1rem;
         }
+
         .success-message {
             background: #d4edda;
             color: #155724;
@@ -311,6 +354,7 @@
             border-radius: 5px;
             margin: 1rem 0;
         }
+
         .error-message {
             background: #f8d7da;
             color: #721c24;
@@ -319,89 +363,29 @@
             border-radius: 5px;
             margin: 1rem 0;
         }
+
         .hidden {
             display: none;
         }
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .stats-card {
-            text-align: center;
-            background: var(--surface);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-        }
-        .stats-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-        .table-container {
-            background: var(--surface);
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            margin-top: 2rem;
-        }
-        .industry-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .industry-table th,
-        .industry-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-        .industry-table th {
-            background: var(--background);
-            font-weight: 500;
-            cursor: pointer;
-            user-select: none;
-            position: relative;
-        }
-        .industry-table th:hover {
-            background: var(--border);
-        }
-        .industry-table th.sorted::after {
-            content: '▲';
-            position: absolute;
-            right: 8px;
-            font-size: 10px;
-        }
-        .industry-table th.sorted.desc::after {
-            content: '▼';
-        }
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-secondary);
-        }
-        .error {
-            background: #fef2f2;
-            color: #dc2626;
-            padding: 10px;
-            border-radius: var(--radius);
-        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
             }
+            
             .form-row {
                 flex-direction: column;
             }
+            
             .nav-tabs {
                 flex-direction: column;
                 gap: 0.5rem;
             }
+            
             .charts-container {
                 grid-template-columns: 1fr;
             }
+            
             .dashboard {
                 grid-template-columns: 1fr;
             }
@@ -409,59 +393,59 @@
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>Система управления данными московских предприятий</h1>
+    </div>
+
     <!-- Login Page -->
     <div id="loginPage" class="login-container">
-        <div class="auth-form">
-            <h2>Авторизация</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="username">Логин:</label>
-                    <input type="text" id="username" name="username" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Пароль:</label>
-                    <input type="password" id="password" name="password" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-full">Войти</button>
-            </form>
-            <div style="text-align: center; margin: 1rem 0;">
-                <p>Альтернативные способы входа:</p>
+        <h2 style="text-align: center; margin-bottom: 2rem;">Авторизация</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Логин:</label>
+                <input type="text" id="username" name="username" required>
             </div>
-            <button type="button" class="btn btn-secondary btn-full" id="ecpLogin">Вход по ЭЦП</button>
-            <button type="button" class="btn btn-secondary btn-full" id="gosuslugiLogin">Вход по Госуслугам</button>
-            <div class="auth-link">
-                <a href="#" id="showRegister">Зарегистрироваться</a>
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required>
             </div>
+            <button type="submit" class="btn btn-full">Войти</button>
+        </form>
+        
+        <div style="text-align: center; margin: 1rem 0;">
+            <p>Альтернативные способы входа:</p>
+        </div>
+        
+        <button type="button" class="btn btn-secondary btn-full" id="ecpLogin">Вход по ЭЦП</button>
+        <button type="button" class="btn btn-secondary btn-full" id="gosuslugiLogin">Вход по Госуслугам</button>
+        
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="#" style="color: #1e3a8a;">Зарегистрироваться</a>
         </div>
     </div>
+
     <!-- Main Application -->
-    <div id="mainApp" class="main-app">
-        <div class="header">
-            <div class="container">
-                <div class="header-content">
-                    <h1>Система управления данными московских предприятий</h1>
-                    <button class="btn" id="logoutBtn">Выйти</button>
-                </div>
+    <div id="mainApp" class="hidden">
+        <nav class="navigation">
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="search">Просмотр организаций</button>
+                <button class="nav-tab" data-tab="add-data">Добавление данных</button>
+                <button class="nav-tab" data-tab="reports">Отчет по отраслям</button>
             </div>
-        </div>
+        </nav>
+
         <div class="container">
-            <nav class="navigation">
-                <div class="nav-tabs">
-                    <button class="nav-tab active" data-tab="search">Просмотр организаций</button>
-                    <button class="nav-tab" data-tab="add-data">Добавление данных</button>
-                    <button class="nav-tab" data-tab="reports">Отчет по отраслям</button>
-                </div>
-            </nav>
             <!-- Search Organizations Tab -->
             <div id="search-tab" class="tab-content active">
                 <h2>Поиск организаций</h2>
+                
                 <!-- API Search Section -->
-                <div class="card">
+                <div class="search-section" id="apiSearchSection">
                     <h3>Поиск через ФНС API</h3>
                     <div class="form-row">
                         <div>
                             <label>Провайдер API:</label>
-                            <select id="apiProvider" class="form-control">
+                            <select id="apiProvider" style="padding: 10px; font-size: 16px; width: 300px;">
                                 <option value="fns">API-ФНС</option>
                                 <option value="dadata">DaData</option>
                                 <option value="spark">СПАРК Интерфакс</option>
@@ -469,57 +453,63 @@
                         </div>
                         <div>
                             <label>ИНН организации:</label>
-                            <input type="text" id="searchQuery" placeholder="Введите ИНН" class="form-control">
+                            <input type="text" id="searchQuery" placeholder="Введите ИНН (например: 7707083893)" style="padding: 10px; font-size: 16px; width: 400px;">
                         </div>
                         <div>
-                            <button class="btn" id="searchBtn">🔍 Найти в API</button>
+                            <button class="btn" id="searchBtn" style="padding: 10px 20px;">🔍 Найти в API</button>
                         </div>
                     </div>
                 </div>
+
                 <!-- Database Search Section -->
-                <div class="card">
+                <div class="search-section" style="margin-top: 30px;">
                     <h3>Поиск в базе данных</h3>
                     <div class="form-row">
                         <div>
                             <label>Поисковый запрос:</label>
-                            <input type="text" id="dbSearchQuery" placeholder="Название или ИНН" class="form-control">
+                            <input type="text" id="dbSearchQuery" placeholder="Название или ИНН" style="padding: 10px; font-size: 16px; width: 400px;">
                         </div>
                         <div>
                             <label>Тип поиска:</label>
-                            <select id="searchType" class="form-control">
+                            <select id="searchType" style="padding: 10px; font-size: 16px; width: 200px;">
                                 <option value="inn">По ИНН</option>
                                 <option value="name">По названию</option>
                             </select>
                         </div>
                         <div>
-                            <button class="btn" id="dbSearchBtn">🔍 Найти в БД</button>
+                            <button class="btn" id="dbSearchBtn" style="padding: 10px 20px;">🔍 Найти в БД</button>
                         </div>
                     </div>
                 </div>
+
                 <div class="loading" id="searchLoading">
                     <p>Поиск организаций...</p>
                 </div>
+
                 <div id="searchResults"></div>
                 <div id="dbSearchResults"></div>
                 <div id="organizationDetails"></div>
             </div>
+
             <!-- Add Data Tab -->
             <div id="add-data-tab" class="tab-content">
                 <h2>Добавление данных</h2>
-                <div class="card">
+                
+                <div class="search-section">
                     <div class="form-row">
                         <div>
                             <label>Выберите вашу организацию:</label>
-                            <select id="userOrganization" class="form-control">
+                            <select id="userOrganization" style="padding: 10px; font-size: 16px; width: 400px;">
                                 <option value="">-- Выберите организацию --</option>
-                                <!-- Options will be populated dynamically -->
+                                <option value="7714431171">АО "СВОБОДА"</option>
                             </select>
                         </div>
                         <div>
-                            <button class="btn btn-secondary" id="editOrgBtn">✏️ Редактировать данные организации</button>
+                            <button class="btn btn-secondary" id="editOrgBtn" style="padding: 10px 20px;">✏️ Редактировать данные организации</button>
                         </div>
                     </div>
                 </div>
+
                 <div class="edit-form" id="editForm">
                     <h3>Редактирование данных организации</h3>
                     <form id="organizationEditForm">
@@ -527,184 +517,195 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label>ИНН:</label>
-                                <input type="text" id="edit_inn" name="inn" readonly class="form-control">
+                                <input type="text" id="edit_inn" name="inn" readonly style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Краткое наименование:</label>
-                                <input type="text" id="edit_short_name" name="short_name" class="form-control">
+                                <input type="text" id="edit_short_name" name="short_name" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Полное наименование:</label>
-                                <input type="text" id="edit_full_name" name="full_name" class="form-control">
+                                <input type="text" id="edit_full_name" name="full_name" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Статус:</label>
-                                <input type="text" id="edit_status" name="status" class="form-control">
+                                <input type="text" id="edit_status" name="status" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Юридический адрес:</label>
-                                <input type="text" id="edit_legal_address" name="legal_address" class="form-control">
+                                <input type="text" id="edit_legal_address" name="legal_address" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Адрес производства:</label>
-                                <input type="text" id="edit_production_address" name="production_address" class="form-control">
+                                <input type="text" id="edit_production_address" name="production_address" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Дополнительный адрес:</label>
-                                <input type="text" id="edit_additional_address" name="additional_address" class="form-control">
+                                <input type="text" id="edit_additional_address" name="additional_address" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Основная отрасль:</label>
-                                <input type="text" id="edit_main_industry" name="main_industry" class="form-control">
+                                <input type="text" id="edit_main_industry" name="main_industry" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Подотрасль:</label>
-                                <input type="text" id="edit_sub_industry" name="sub_industry" class="form-control">
+                                <input type="text" id="edit_sub_industry" name="sub_industry" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Основной ОКВЭД:</label>
-                                <input type="text" id="edit_main_okved" name="main_okved" class="form-control">
+                                <input type="text" id="edit_main_okved" name="main_okved" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Вид деятельности по ОКВЭД:</label>
-                                <input type="text" id="edit_okved_activity" name="okved_activity" class="form-control">
+                                <input type="text" id="edit_okved_activity" name="okved_activity" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Производственный ОКВЭД:</label>
-                                <input type="text" id="edit_production_okved" name="production_okved" class="form-control">
+                                <input type="text" id="edit_production_okved" name="production_okved" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Дата регистрации:</label>
-                                <input type="text" id="edit_registration_date" name="registration_date" class="form-control">
+                                <input type="text" id="edit_registration_date" name="registration_date" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Руководитель:</label>
-                                <input type="text" id="edit_director" name="director" class="form-control">
+                                <input type="text" id="edit_director" name="director" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Головная организация:</label>
-                                <input type="text" id="edit_parent_company" name="parent_company" class="form-control">
+                                <input type="text" id="edit_parent_company" name="parent_company" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>ИНН головной:</label>
-                                <input type="text" id="edit_parent_inn" name="parent_inn" class="form-control">
+                                <input type="text" id="edit_parent_inn" name="parent_inn" style="padding: 10px; font-size: 16px;">
                             </div>
                         </div>
+                        
                         <h4>Контактные данные:</h4>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label>Контакты руководства:</label>
-                                <input type="text" id="edit_contact_management" name="contact_management" class="form-control">
+                                <input type="text" id="edit_contact_management" name="contact_management" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Контакт сотрудника:</label>
-                                <input type="text" id="edit_contact_employee" name="contact_employee" class="form-control">
+                                <input type="text" id="edit_contact_employee" name="contact_employee" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Контакты по ЧС:</label>
-                                <input type="text" id="edit_contact_emergency" name="contact_emergency" class="form-control">
+                                <input type="text" id="edit_contact_emergency" name="contact_emergency" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Сайт:</label>
-                                <input type="text" id="edit_website" name="website" class="form-control">
+                                <input type="text" id="edit_website" name="website" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Email:</label>
-                                <input type="email" id="edit_email" name="email" class="form-control">
+                                <input type="email" id="edit_email" name="email" style="padding: 10px; font-size: 16px;">
                             </div>
                         </div>
+
                         <h4>Статусы и поддержка:</h4>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label>Меры поддержки:</label>
-                                <input type="text" id="edit_support_measures" name="support_measures" class="form-control">
+                                <input type="text" id="edit_support_measures" name="support_measures" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Особый статус:</label>
-                                <input type="text" id="edit_special_status" name="special_status" class="form-control">
+                                <input type="text" id="edit_special_status" name="special_status" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Статус МСП:</label>
-                                <input type="text" id="edit_sme_status" name="sme_status" class="form-control">
+                                <input type="text" id="edit_sme_status" name="sme_status" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Экспорт:</label>
-                                <select id="edit_export_available" name="export_available" class="form-control">
+                                <select id="edit_export_available" name="export_available" style="padding: 10px; font-size: 16px;">
                                     <option value="Да">Да</option>
                                     <option value="Нет">Нет</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Страны экспорта:</label>
-                                <input type="text" id="edit_export_countries" name="export_countries" class="form-control">
+                                <input type="text" id="edit_export_countries" name="export_countries" style="padding: 10px; font-size: 16px;">
                             </div>
                         </div>
+
                         <h4>Координаты:</h4>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label>Координаты юр. адреса:</label>
-                                <input type="text" id="edit_coordinates_legal" name="coordinates_legal" class="form-control">
+                                <input type="text" id="edit_coordinates_legal" name="coordinates_legal" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Координаты производства:</label>
-                                <input type="text" id="edit_coordinates_production" name="coordinates_production" class="form-control">
+                                <input type="text" id="edit_coordinates_production" name="coordinates_production" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Координаты доп. площадки:</label>
-                                <input type="text" id="edit_coordinates_additional" name="coordinates_additional" class="form-control">
+                                <input type="text" id="edit_coordinates_additional" name="coordinates_additional" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Широта:</label>
-                                <input type="number" id="edit_latitude" name="latitude" step="any" class="form-control">
+                                <input type="number" id="edit_latitude" name="latitude" step="any" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Долгота:</label>
-                                <input type="number" id="edit_longitude" name="longitude" step="any" class="form-control">
+                                <input type="number" id="edit_longitude" name="longitude" step="any" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Округ:</label>
-                                <input type="text" id="edit_okrug" name="okrug" class="form-control">
+                                <input type="text" id="edit_okrug" name="okrug" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
                                 <label>Район:</label>
-                                <input type="text" id="edit_raion" name="raion" class="form-control">
+                                <input type="text" id="edit_raion" name="raion" style="padding: 10px; font-size: 16px;">
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-success">💾 Сохранить изменения</button>
-                        <button type="button" class="btn btn-secondary" id="cancelEditBtn">Отмена</button>
+                        
+                        <button type="submit" class="btn btn-success" style="padding: 10px 20px;">💾 Сохранить изменения</button>
+                        <button type="button" class="btn btn-secondary" id="cancelEditBtn" style="padding: 10px 20px;">Отмена</button>
                     </form>
                 </div>
+                
                 <hr style="margin: 40px 0;">
+
                 <h3>Добавление новых данных</h3>
+
                 <h4>Способ 1: Ввод текста</h4>
                 <div class="form-group">
                     <label>Введите сырые данные:</label>
-                    <textarea id="rawTextData" placeholder="Вставьте данные организации..." class="form-control" style="min-height: 120px;"></textarea>
-                    <button class="btn" id="processTextBtn">🤖 Обработать текст нейросетью</button>
+                    <textarea id="rawTextData" placeholder="Вставьте данные организации..." style="padding: 10px; font-size: 16px; width: 100%; min-height: 120px;"></textarea>
+                    <button class="btn" id="processTextBtn" style="padding: 10px 20px;">🤖 Обработать текст нейросетью</button>
                 </div>
+
                 <h4>Способ 2: Загрузка файлов</h4>
                 <div class="file-input">
-                    <input type="file" id="fileInput" accept=".xlsx,.xls,.pdf">
-                    <label for="fileInput" class="file-label">
-                        <p>📁 Выбрать файл (Excel или PDF)</p>
-                        <p style="font-size: 12px; color: var(--text-secondary);">Поддерживаются форматы: .xlsx, .xls, .pdf</p>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls,.pdf" style="display: none;">
+                    <label for="fileInput" style="display: inline-block; padding: 10px 20px; background: #1e3a8a; color: white; cursor: pointer; border-radius: 4px; font-size: 16px;">
+                        📁 Выбрать файл (Excel или PDF)
                     </label>
+                    <span id="fileName" style="margin-left: 10px; font-size: 16px;"></span>
+                    <button class="btn" id="uploadBtn" style="padding: 10px 20px; margin-left: 10px;">⬆️ Загрузить и обработать</button>
                 </div>
-                <div id="fileName"></div>
-                <button class="btn" id="uploadBtn">⬆️ Загрузить и обработать</button>
+
                 <div class="loading" id="processLoading">
                     <p>Обработка данных...</p>
                 </div>
+
                 <div id="processedResult"></div>
             </div>
+
             <!-- Reports Tab -->
             <div id="reports-tab" class="tab-content">
                 <h2>Отчет по отраслям</h2>
-                <div class="card">
+                
+                <div class="search-section">
                     <div class="form-row">
                         <div>
                             <label>Выберите отрасль:</label>
-                            <select id="industrySelect" class="form-control">
+                            <select id="industrySelect">
                                 <option value="">Выберите отрасль</option>
                                 <option value="chemical">Химическая промышленность</option>
                                 <option value="machine">Машиностроение</option>
@@ -717,24 +718,106 @@
                         </div>
                     </div>
                 </div>
+
                 <div id="industryReport"></div>
             </div>
         </div>
     </div>
+
     <script>
         // Global data
+        const organizationData = {
+            "7714431171": {
+                inn: "7714431171",
+                short_name: 'АО "СВОБОДА"',
+                full_name: 'АКЦИОНЕРНОЕ ОБЩЕСТВО "СВОБОДА"',
+                status: "Действующая",
+                legal_address: "127015, г. Москва, ул. Вятская, д. 47 стр. 8 этаж 1 помещение VIII комната 1",
+                production_address: "127015, г. Москва, ул. Вятская, д. 47 стр. 8",
+                additional_address: "",
+                main_industry: "Химическая промышленность",
+                sub_industry: "Косметика",
+                main_okved: "20.42",
+                okved_activity: "Производство парфюмерных и косметических средств",
+                production_okved: "20.42",
+                registration_date: "15.03.1994",
+                director: "Иванова Мария Петровна",
+                parent_company: "",
+                parent_inn: "",
+                contact_management: "+7 (495) 123-45-67",
+                contact_employee: "info@svoboda.ru",
+                contact_emergency: "+7 (495) 123-45-68",
+                website: "www.svoboda.ru",
+                email: "info@svoboda.ru",
+                support_measures: "Субсидии на развитие производства 2023",
+                special_status: "Резидент ОЭЗ",
+                sme_status: "Среднее предприятие",
+                export_available: "Да",
+                export_countries: "Казахстан, Беларусь, Армения",
+                coordinates_legal: "55.802968, 37.580095",
+                coordinates_production: "55.802968, 37.580095",
+                coordinates_additional: "",
+                latitude: 55.802968,
+                longitude: 37.580095,
+                okrug: "САО",
+                raion: "Савёловский",
+                financial_data: [
+                    { year: 2022, revenue: 500000, net_profit: 50000 },
+                    { year: 2023, revenue: 600000, net_profit: 70000 },
+                    { year: 2024, revenue: 750000, net_profit: 90000 }
+                ],
+                personnel_data: [
+                    { year: 2022, total_employees: 120, avg_salary_moscow: 85 },
+                    { year: 2023, total_employees: 135, avg_salary_moscow: 95 },
+                    { year: 2024, total_employees: 150, avg_salary_moscow: 105 }
+                ]
+            }
+        };
+
+        const industryData = {
+            chemical: {
+                name: "Химическая промышленность",
+                count: 15,
+                total_revenue: 8500,
+                avg_employees: 125,
+                organizations: [
+                    { name: 'АО "СВОБОДА"', inn: "7714431171", address: "ул. Вятская, д. 47", revenue: 750, employees: 150 },
+                    { name: 'ООО "Химпром"', inn: "7714123456", address: "ул. Ленина, д. 25", revenue: 1200, employees: 180 },
+                    { name: 'ЗАО "Синтез"', inn: "7714789012", address: "пр-т Мира, д. 15", revenue: 890, employees: 95 }
+                ]
+            },
+            machine: {
+                name: "Машиностроение",
+                count: 32,
+                total_revenue: 15200,
+                avg_employees: 280,
+                organizations: [
+                    { name: 'ОАО "Машиностроитель"', inn: "7715123456", address: "ул. Промышленная, д. 10", revenue: 2500, employees: 320 },
+                    { name: 'ООО "Техника"', inn: "7715789012", address: "ш. Энтузиастов, д. 45", revenue: 1800, employees: 250 }
+                ]
+            },
+            food: {
+                name: "Пищевая промышленность",
+                count: 48,
+                total_revenue: 9800,
+                avg_employees: 95,
+                organizations: [
+                    { name: 'ООО "Хлебопек"', inn: "7716123456", address: "ул. Хлебная, д. 8", revenue: 650, employees: 85 },
+                    { name: 'ЗАО "Молпродукт"', inn: "7716789012", address: "ул. Молочная, д. 12", revenue: 980, employees: 120 }
+                ]
+            }
+        };
+
         let currentUser = null;
-        let currentUserOrganizations = [];
-        let currentOrganizationDetails = null;
         let currentIndustry = null;
+
         // DOM elements
         const loginPage = document.getElementById('loginPage');
         const mainApp = document.getElementById('mainApp');
         const loginForm = document.getElementById('loginForm');
         const ecpLoginBtn = document.getElementById('ecpLogin');
         const gosuslugiLoginBtn = document.getElementById('gosuslugiLogin');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const showRegisterLink = document.getElementById('showRegister');
+
         // Tab switching
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
@@ -742,317 +825,308 @@
                 switchTab(tabName);
             });
         });
+
         function switchTab(tabName) {
             // Update tab buttons
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
             document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
             // Update tab content
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
             document.getElementById(`${tabName}-tab`).classList.add('active');
         }
+
         // Login functionality
-        loginForm.addEventListener('submit', async (e) => {
+        loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await response.json();
-                if (data.status === 'success') {
-                    currentUser = { id: data.user_id, username: username };
-                    showMainApp();
-                    loadUserOrganizations();
-                } else {
-                    alert('Неверный логин или пароль');
-                }
-            } catch (error) {
-                console.error('Ошибка авторизации:', error);
-                alert('Ошибка подключения к серверу');
+            
+            // Simple validation
+            if (username && password) {
+                currentUser = username;
+                showMainApp();
+            } else {
+                alert('Пожалуйста, заполните все поля');
             }
         });
+
         ecpLoginBtn.addEventListener('click', () => {
             alert('Функция входа по ЭЦП в разработке');
         });
+
         gosuslugiLoginBtn.addEventListener('click', () => {
             alert('Функция входа через Госуслуги в разработке');
         });
-        logoutBtn.addEventListener('click', () => {
-            currentUser = null;
-            currentUserOrganizations = [];
-            currentOrganizationDetails = null;
-            showLoginPage();
-        });
-        showRegisterLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('Регистрация новых пользователей временно недоступна.');
-            // Можно реализовать форму регистрации
-        });
+
         function showMainApp() {
             loginPage.classList.add('hidden');
-            mainApp.classList.add('active');
+            mainApp.classList.remove('hidden');
         }
-        function showLoginPage() {
-            mainApp.classList.remove('active');
-            loginPage.classList.remove('hidden');
-            // Очищаем поля формы
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-        }
+
         // Search functionality
         const searchBtn = document.getElementById('searchBtn');
         const searchQuery = document.getElementById('searchQuery');
         const apiProvider = document.getElementById('apiProvider');
         const searchResults = document.getElementById('searchResults');
         const searchLoading = document.getElementById('searchLoading');
+        
         // Database search elements
         const dbSearchBtn = document.getElementById('dbSearchBtn');
         const dbSearchQuery = document.getElementById('dbSearchQuery');
         const searchType = document.getElementById('searchType');
         const dbSearchResults = document.getElementById('dbSearchResults');
+
         searchBtn.addEventListener('click', performAPISearch);
         searchQuery.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 performAPISearch();
             }
         });
+        
         dbSearchBtn.addEventListener('click', performDatabaseSearch);
         dbSearchQuery.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 performDatabaseSearch();
             }
         });
+
+        // FNS API Search (simulated with real API parameters)
         async function performAPISearch() {
             const query = searchQuery.value.trim();
             const provider = apiProvider.value;
+            
             if (!query) {
                 alert('Введите ИНН организации');
                 return;
             }
-            if (!/^\d+$/.test(query)) {
-                alert('ИНН должен содержать только цифры');
-                return;
-            }
+
             searchLoading.classList.add('show');
             searchResults.innerHTML = '';
-            try {
-                const response = await fetch(`/api/fns/search/${query}?provider=${provider}`);
-                const data = await response.json();
-                if (response.ok) {
-                    displayAPIResults(data.items || [], provider);
-                } else {
-                    throw new Error(data.error || `Ошибка ${response.status}`);
-                }
-            } catch (error) {
+            
+            // Simulate FNS API call with real parameters
+            // URL: https://api-fns.ru/api/search
+            // Params: {q: query, key: "30f98ca92ed94f3774fde7930d237775639fd7b5", filter: "active"}
+            // Headers: {"User-Agent": "Mozilla/5.0 (compatible; FNS API Client)"}
+            
+            setTimeout(() => {
                 searchLoading.classList.remove('show');
-                searchResults.innerHTML = `<p class="error-message">❌ Ошибка поиска: ${error.message}</p>`;
-            }
+                
+                let mockApiResults = [];
+                
+                if (query === '7714431171') {
+                    mockApiResults = [{
+                        inn: '7714431171',
+                        short_name: 'АО "СВОБОДА"',
+                        full_name: 'АКЦИОНЕРНОЕ ОБЩЕСТВО "СВОБОДА"',
+                        legal_address: '127015, г. Москва, ул. Вятская, д. 47 стр. 8',
+                        status: 'Действующая',
+                        director: 'Иванова Мария Петровна',
+                        registration_date: '15.03.1994',
+                        okved: '20.42 - Производство парфюмерных и косметических средств'
+                    }];
+                } else if (query === '7707083893') {
+                    // Сбербанк из примера API
+                    mockApiResults = [{
+                        inn: '7707083893',
+                        short_name: 'ПАО "СБЕРБАНК РОССИИ"',
+                        full_name: 'ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО "СБЕРБАНК РОССИИ"',
+                        legal_address: '117997, г Москва, ул Вавилова, д 19',
+                        status: 'Действующая',
+                        director: 'Греф Герман Оскарович',
+                        registration_date: '23.06.1997',
+                        okved: '64.19 - Прочие виды денежного посредничества'
+                    }];
+                } else {
+                    // Mock API response for other INNs
+                    mockApiResults = [{
+                        inn: query,
+                        short_name: `ООО "Организация ${query.slice(-3)}"`,
+                        full_name: `ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ОРГАНИЗАЦИЯ ${query.slice(-3)}"`,
+                        legal_address: 'г. Москва, ул. Примерная, д. 1',
+                        status: 'Действующая',
+                        director: 'Петров Петр Петрович',
+                        registration_date: '01.01.2020',
+                        okved: 'Прочая деятельность'
+                    }];
+                }
+                
+                displayAPIResults(mockApiResults, provider);
+            }, 2000);
         }
+        
+        // Database Search
         async function performDatabaseSearch() {
             const query = dbSearchQuery.value.trim();
             const type = searchType.value;
+            
             if (!query) {
                 alert('Введите поисковый запрос');
                 return;
             }
+
             dbSearchResults.innerHTML = '<p>🔍 Поиск в базе данных...</p>';
-            try {
-                const response = await fetch(`/api/user/organizations/${currentUser.id}`);
-                const allOrgs = await response.json();
-                if (!response.ok) {
-                    throw new Error(allOrgs.error || `Ошибка ${response.status}`);
-                }
-                let results = allOrgs.filter(org => {
+            
+            setTimeout(() => {
+                let results = [];
+                
+                // Search in local database
+                Object.values(organizationData).forEach(org => {
                     let match = false;
-                    if (type === 'inn' && org.inn && org.inn.includes(query)) {
+                    
+                    if (type === 'inn' && org.inn.includes(query)) {
                         match = true;
-                    } else if (type === 'name' && org.short_name && org.full_name &&
+                    } else if (type === 'name' && 
                         (org.short_name.toLowerCase().includes(query.toLowerCase()) ||
                          org.full_name.toLowerCase().includes(query.toLowerCase()))) {
                         match = true;
                     }
-                    return match;
+                    
+                    if (match) {
+                        results.push(org);
+                    }
                 });
+                
                 displayDatabaseResults(results);
-            } catch (error) {
-                console.error('Ошибка поиска в БД:', error);
-                dbSearchResults.innerHTML = `<p class="error-message">❌ Ошибка поиска в БД: ${error.message}</p>`;
-            }
+            }, 1000);
         }
+
         function displayAPIResults(results, provider) {
-            searchLoading.classList.remove('show');
             if (results.length === 0) {
                 searchResults.innerHTML = '<p>❌ Организации не найдены в API</p>';
                 return;
             }
-            // ВАЖНО: Предполагается, что 'results' уже является массивом из 'items'
-            // и каждый элемент имеет структуру { "ЮЛ": { ... } }
+
             const html = results.map(org => `
-                <div class="organization-card" onclick="showOrganizationDetailsFromAPI('${org.ЮЛ.ИНН}', arguments[0])">
-                    <h3>${org.ЮЛ.НаимСокрЮЛ || org.ЮЛ.НаимПолнЮЛ}</h3>
-                    <p><strong>ИНН:</strong> ${org.ЮЛ.ИНН}</p>
-                    <p><strong>Адрес:</strong> ${org.ЮЛ.АдресПолн || 'Не указан'}</p>
-                    <p><strong>Статус:</strong> ${org.ЮЛ.Статус || 'Не указан'}</p>
-                    <!-- Внимание: API ФНС может не возвращать ФИО директора в поле 'Руководитель' внутри 'ЮЛ' напрямую в этом ответе -->
-                    <p><strong>Директор:</strong> ${org.ЮЛ.Руководитель || 'Не указан в этом ответе API'}</p>
-                    <p><strong>Основной вид деят.:</strong> ${org.ЮЛ.ОснВидДеят || 'Не указан'}</p>
+                <div class="organization-card" style="border: 1px solid #ddd; padding: 20px; margin: 15px 0; border-radius: 8px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: auto;">
+                    <h3>${org.short_name || org.full_name}</h3>
+                    <p><strong>ИНН:</strong> ${org.inn}</p>
+                    <p><strong>Адрес:</strong> ${org.legal_address}</p>
+                    <p><strong>Статус:</strong> ${org.status}</p>
+                    <p><strong>Директор:</strong> ${org.director}</p>
+                    <p><strong>ОКВЭД:</strong> ${org.okved}</p>
                     <p style="color: #1e3a8a; font-size: 12px;">Источник: ${provider.toUpperCase()}</p>
+                    
+                    <div style="margin-top: 15px;">
+                        <button onclick='saveToDatabase(${JSON.stringify(org).replace(/'/g, "\'")})' 
+                                style="padding: 10px 20px; background: #2ecc71; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px;">
+                            💾 Сохранить в базу данных
+                        </button>
+                        
+                        <button onclick="showOrganizationDetails('${org.inn}')" 
+                                style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+                            👁️ Просмотреть детали
+                        </button>
+                    </div>
                 </div>
             `).join('');
+            
             searchResults.innerHTML = `<h3>✅ Результаты API поиска (${results.length}):</h3>${html}`;
         }
+        
         function displayDatabaseResults(results) {
             if (results.length === 0) {
                 dbSearchResults.innerHTML = '<p>❌ Организации не найдены в базе данных</p>';
                 return;
             }
+
             const html = results.map(org => `
-                <div class="organization-card" onclick="showOrganizationDetails('${org.id}')">
+                <div class="organization-card" onclick="showOrganizationDetails('${org.inn}')">
                     <h3>${org.short_name}</h3>
                     <p><strong>ИНН:</strong> ${org.inn}</p>
-                    <p><strong>Адрес:</strong> ${org.legal_address || 'Не указан'}</p>
-                    <p><strong>Статус:</strong> ${org.status || 'Не указан'}</p>
-                    <p><strong>Отрасль:</strong> ${org.main_industry || 'Не указана'}</p>
-                    <p style="color: var(--success-color); font-size: 12px;">Источник: База данных</p>
+                    <p><strong>Адрес:</strong> ${org.legal_address}</p>
+                    <p><strong>Статус:</strong> ${org.status}</p>
+                    <p><strong>Отрасль:</strong> ${org.main_industry}</p>
+                    <p style="color: #10b981; font-size: 12px;">Источник: База данных</p>
                 </div>
             `).join('');
+            
             dbSearchResults.innerHTML = `<h3>✅ Результаты поиска в БД (${results.length}):</h3>${html}`;
         }
-        async function showOrganizationDetailsFromAPI(inn, event) {
-            event.stopPropagation();
-            try {
-                const orgInDb = currentUserOrganizations.find(org => org.inn === inn);
-                if (orgInDb) {
-                    const response = await fetch(`/api/organization/${orgInDb.id}`);
-                    if (response.ok) {
-                        currentOrganizationDetails = await response.json();
-                        showOrganizationDetailsFromData(currentOrganizationDetails);
-                        return;
-                    }
-                }
-                alert(`Данные по ИНН ${inn} получены из API. Для просмотра полных данных и сохранения добавьте организацию в базу.`);
-            } catch (error) {
-                console.error('Ошибка при получении деталей из API:', error);
-                alert('Ошибка при получении деталей организации');
+
+        function showOrganizationDetails(inn) {
+            const org = organizationData[inn];
+            if (!org) {
+                alert('Подробная информация доступна только для организаций из базы данных');
+                return;
             }
-        }
-        async function loadUserOrganizations() {
-            if (!currentUser) return;
-            try {
-                const response = await fetch(`/api/user/organizations/${currentUser.id}`);
-                if (response.ok) {
-                    currentUserOrganizations = await response.json();
-                    populateUserOrganizationSelect();
-                } else {
-                    throw new Error('Не удалось загрузить список организаций');
-                }
-            } catch (error) {
-                console.error('Ошибка загрузки организаций:', error);
-            }
-        }
-        function populateUserOrganizationSelect() {
-            const select = document.getElementById('userOrganization');
-            select.innerHTML = '<option value="">-- Выберите организацию --</option>';
-            currentUserOrganizations.forEach(org => {
-                const option = document.createElement('option');
-                option.value = org.id;
-                option.textContent = `${org.short_name} (${org.inn})`;
-                select.appendChild(option);
-            });
-        }
-        async function showOrganizationDetails(orgId) {
-            try {
-                const response = await fetch(`/api/organization/${orgId}`);
-                if (response.ok) {
-                    currentOrganizationDetails = await response.json();
-                    showOrganizationDetailsFromData(currentOrganizationDetails);
-                } else {
-                    throw new Error('Не удалось загрузить детали организации');
-                }
-            } catch (error) {
-                console.error('Ошибка при получении деталей из БД:', error);
-                alert('Ошибка при получении деталей организации');
-            }
-        }
-        function showOrganizationDetailsFromData(org) {
+
             const detailsHtml = `
                 <div class="organization-details">
                     <h3>📋 Полная информация об организации</h3>
+                    
                     <h4>Основные данные:</h4>
                     <div class="details-grid">
                         <div class="detail-item">
-                            <p><strong>ИНН:</strong> ${org.inn || 'Не указан'}</p>
+                            <p><strong>ИНН:</strong> ${org.inn}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Краткое наименование:</strong> ${org.short_name || 'Не указано'}</p>
+                            <p><strong>Краткое наименование:</strong> ${org.short_name}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Полное наименование:</strong> ${org.full_name || 'Не указано'}</p>
+                            <p><strong>Полное наименование:</strong> ${org.full_name}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Статус:</strong> ${org.status || 'Не указан'}</p>
+                            <p><strong>Статус:</strong> ${org.status}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Юридический адрес:</strong> ${org.legal_address || 'Не указан'}</p>
+                            <p><strong>Юридический адрес:</strong> ${org.legal_address}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Адрес производства:</strong> ${org.production_address || 'Не указан'}</p>
+                            <p><strong>Адрес производства:</strong> ${org.production_address}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Основная отрасль:</strong> ${org.main_industry || 'Не указана'}</p>
+                            <p><strong>Основная отрасль:</strong> ${org.main_industry}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Подотрасль:</strong> ${org.sub_industry || 'Не указана'}</p>
+                            <p><strong>Подотрасль:</strong> ${org.sub_industry}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Основной ОКВЭД:</strong> ${org.main_okved || 'Не указан'}</p>
+                            <p><strong>Основной ОКВЭД:</strong> ${org.main_okved}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Вид деятельности:</strong> ${org.okved_activity || 'Не указан'}</p>
+                            <p><strong>Вид деятельности:</strong> ${org.okved_activity}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Дата регистрации:</strong> ${org.registration_date || 'Не указана'}</p>
+                            <p><strong>Дата регистрации:</strong> ${org.registration_date}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Руководитель:</strong> ${org.director || 'Не указан'}</p>
+                            <p><strong>Руководитель:</strong> ${org.director}</p>
                         </div>
                     </div>
+                    
                     <h4>Контактные данные:</h4>
                     <div class="details-grid">
                         <div class="detail-item">
-                            <p><strong>Контакт руководства:</strong> ${org.contact_management || 'Не указан'}</p>
+                            <p><strong>Контакт руководства:</strong> ${org.contact_management}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Контакт сотрудника:</strong> ${org.contact_employee || 'Не указан'}</p>
+                            <p><strong>Контакт сотрудника:</strong> ${org.contact_employee}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Сайт:</strong> ${org.website || 'Не указан'}</p>
+                            <p><strong>Сайт:</strong> ${org.website}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Email:</strong> ${org.email || 'Не указан'}</p>
+                            <p><strong>Email:</strong> ${org.email}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Статус МСП:</strong> ${org.sme_status || 'Не указан'}</p>
+                            <p><strong>Статус МСП:</strong> ${org.sme_status}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Экспорт:</strong> ${org.export_available || 'Не указан'}</p>
+                            <p><strong>Экспорт:</strong> ${org.export_available}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Округ:</strong> ${org.okrug || 'Не указан'}</p>
+                            <p><strong>Округ:</strong> ${org.okrug}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Район:</strong> ${org.raion || 'Не указан'}</p>
+                            <p><strong>Район:</strong> ${org.raion}</p>
                         </div>
                     </div>
+                    
                     <div class="charts-container">
                         <div class="chart-box">
                             <h3>Выручка по годам (тыс. руб.)</h3>
@@ -1081,45 +1155,23 @@
                     </div>
                 </div>
             `;
+            
             document.getElementById('organizationDetails').innerHTML = detailsHtml;
+            
+            // Create charts after DOM update
             setTimeout(() => {
                 createOrganizationCharts(org);
             }, 100);
         }
+
         function createOrganizationCharts(org) {
-            const financialData = org.financial_data || [];
-            const personnelData = org.personnel_data || [];
+            const years = org.financial_data.map(d => d.year);
+            const revenue = org.financial_data.map(d => d.revenue);
+            const profit = org.financial_data.map(d => d.net_profit);
+            const employees = org.personnel_data.map(d => d.total_employees);
+            const salary = org.personnel_data.map(d => d.avg_salary_moscow);
 
-            const years = [...new Set([...financialData.map(d => d.year), ...personnelData.map(d => d.year)])].sort((a, b) => a - b);
-
-            const revenue = years.map(year => {
-                const entry = financialData.find(d => d.year === year);
-                return entry ? entry.revenue : 0;
-            });
-            const profit = years.map(year => {
-                const entry = financialData.find(d => d.year === year);
-                return entry ? entry.net_profit : 0;
-            });
-            const employees = years.map(year => {
-                const entry = personnelData.find(d => d.year === year);
-                return entry ? entry.total_employees : 0;
-            });
-            const salary = years.map(year => {
-                const entry = personnelData.find(d => d.year === year);
-                return entry ? entry.avg_salary_moscow : 0;
-            });
-
-            const destroyChart = (canvasId) => {
-                const existingChart = Chart.getChart(canvasId);
-                if (existingChart) {
-                    existingChart.destroy();
-                }
-            };
-            destroyChart('revenueChart');
-            destroyChart('profitChart');
-            destroyChart('employeesChart');
-            destroyChart('salaryChart');
-
+            // Revenue Chart
             new Chart(document.getElementById('revenueChart'), {
                 type: 'bar',
                 data: {
@@ -1147,6 +1199,8 @@
                     }
                 }
             });
+
+            // Profit Chart
             new Chart(document.getElementById('profitChart'), {
                 type: 'line',
                 data: {
@@ -1174,6 +1228,8 @@
                     }
                 }
             });
+
+            // Employees Chart
             new Chart(document.getElementById('employeesChart'), {
                 type: 'bar',
                 data: {
@@ -1201,6 +1257,8 @@
                     }
                 }
             });
+
+            // Salary Chart
             new Chart(document.getElementById('salaryChart'), {
                 type: 'line',
                 data: {
@@ -1229,6 +1287,7 @@
                 }
             });
         }
+
         // Add Data functionality
         const userOrganization = document.getElementById('userOrganization');
         const editOrgBtn = document.getElementById('editOrgBtn');
@@ -1242,333 +1301,253 @@
         const uploadBtn = document.getElementById('uploadBtn');
         const processLoading = document.getElementById('processLoading');
         const processedResult = document.getElementById('processedResult');
+
         editOrgBtn.addEventListener('click', () => {
             const orgId = userOrganization.value;
             if (!orgId) {
                 alert('Сначала выберите организацию');
                 return;
             }
-            loadOrganizationForEdit(orgId);
-        });
-        async function loadOrganizationForEdit(orgId) {
-            try {
-                const response = await fetch(`/api/organization/${orgId}`);
-                if (response.ok) {
-                    const org = await response.json();
-                    document.getElementById('edit_inn').value = org.inn || '';
-                    document.getElementById('edit_short_name').value = org.short_name || '';
-                    document.getElementById('edit_full_name').value = org.full_name || '';
-                    document.getElementById('edit_status').value = org.status || '';
-                    document.getElementById('edit_legal_address').value = org.legal_address || '';
-                    document.getElementById('edit_production_address').value = org.production_address || '';
-                    document.getElementById('edit_additional_address').value = org.additional_address || '';
-                    document.getElementById('edit_main_industry').value = org.main_industry || '';
-                    document.getElementById('edit_sub_industry').value = org.sub_industry || '';
-                    document.getElementById('edit_main_okved').value = org.main_okved || '';
-                    document.getElementById('edit_okved_activity').value = org.okved_activity || '';
-                    document.getElementById('edit_production_okved').value = org.production_okved || '';
-                    document.getElementById('edit_registration_date').value = org.registration_date || '';
-                    document.getElementById('edit_director').value = org.director || '';
-                    document.getElementById('edit_parent_company').value = org.parent_company || '';
-                    document.getElementById('edit_parent_inn').value = org.parent_inn || '';
-                    document.getElementById('edit_contact_management').value = org.contact_management || '';
-                    document.getElementById('edit_contact_employee').value = org.contact_employee || '';
-                    document.getElementById('edit_contact_emergency').value = org.contact_emergency || '';
-                    document.getElementById('edit_website').value = org.website || '';
-                    document.getElementById('edit_email').value = org.email || '';
-                    document.getElementById('edit_support_measures').value = org.support_measures || '';
-                    document.getElementById('edit_special_status').value = org.special_status || '';
-                    document.getElementById('edit_sme_status').value = org.sme_status || '';
-                    document.getElementById('edit_export_available').value = org.export_available || 'Нет';
-                    document.getElementById('edit_export_countries').value = org.export_countries || '';
-                    document.getElementById('edit_coordinates_legal').value = org.coordinates_legal || '';
-                    document.getElementById('edit_coordinates_production').value = org.coordinates_production || '';
-                    document.getElementById('edit_coordinates_additional').value = org.coordinates_additional || '';
-                    document.getElementById('edit_latitude').value = org.latitude || '';
-                    document.getElementById('edit_longitude').value = org.longitude || '';
-                    document.getElementById('edit_okrug').value = org.okrug || '';
-                    document.getElementById('edit_raion').value = org.raion || '';
-
-                    editForm.classList.add('show');
-                } else {
-                    throw new Error('Не удалось загрузить данные организации для редактирования');
-                }
-            } catch (error) {
-                console.error('Ошибка при загрузке данных для редактирования:', error);
-                alert('Ошибка при загрузке данных: ' + error.message);
+            
+            if (orgId === '7714431171') {
+                const org = organizationData[orgId];
+                
+                // Основные данные
+                document.getElementById('edit_inn').value = org.inn;
+                document.getElementById('edit_short_name').value = org.short_name;
+                document.getElementById('edit_full_name').value = org.full_name;
+                document.getElementById('edit_status').value = org.status;
+                document.getElementById('edit_legal_address').value = org.legal_address;
+                document.getElementById('edit_production_address').value = org.production_address;
+                document.getElementById('edit_additional_address').value = org.additional_address;
+                document.getElementById('edit_main_industry').value = org.main_industry;
+                document.getElementById('edit_sub_industry').value = org.sub_industry;
+                document.getElementById('edit_main_okved').value = org.main_okved;
+                document.getElementById('edit_okved_activity').value = org.okved_activity;
+                document.getElementById('edit_production_okved').value = org.production_okved;
+                document.getElementById('edit_registration_date').value = org.registration_date;
+                document.getElementById('edit_director').value = org.director;
+                document.getElementById('edit_parent_company').value = org.parent_company;
+                document.getElementById('edit_parent_inn').value = org.parent_inn;
+                
+                // Контактные данные
+                document.getElementById('edit_contact_management').value = org.contact_management;
+                document.getElementById('edit_contact_employee').value = org.contact_employee;
+                document.getElementById('edit_contact_emergency').value = org.contact_emergency;
+                document.getElementById('edit_website').value = org.website;
+                document.getElementById('edit_email').value = org.email;
+                
+                // Статусы и поддержка
+                document.getElementById('edit_support_measures').value = org.support_measures;
+                document.getElementById('edit_special_status').value = org.special_status;
+                document.getElementById('edit_sme_status').value = org.sme_status;
+                document.getElementById('edit_export_available').value = org.export_available;
+                document.getElementById('edit_export_countries').value = org.export_countries;
+                
+                // Координаты
+                document.getElementById('edit_coordinates_legal').value = org.coordinates_legal;
+                document.getElementById('edit_coordinates_production').value = org.coordinates_production;
+                document.getElementById('edit_coordinates_additional').value = org.coordinates_additional;
+                document.getElementById('edit_latitude').value = org.latitude;
+                document.getElementById('edit_longitude').value = org.longitude;
+                document.getElementById('edit_okrug').value = org.okrug;
+                document.getElementById('edit_raion').value = org.raion;
+                
+                editForm.classList.add('show');
+            } else {
+                alert('Данные для выбранной организации недоступны в демо-версии');
             }
-        }
+        });
+
         cancelEditBtn.addEventListener('click', () => {
             editForm.classList.remove('show');
         });
-        organizationEditForm.addEventListener('submit', async (e) => {
+
+        organizationEditForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const orgId = userOrganization.value;
-            if (!orgId) {
-                 alert('Не выбрана организация для сохранения');
-                 return;
-            }
-
-            const formData = new FormData(organizationEditForm);
-            const dataToSave = {};
-            for (let [key, value] of formData.entries()) {
-                dataToSave[key] = value;
-            }
-            dataToSave.user_id = currentUser.id;
-
-            try {
-                const response = await fetch(`/api/organization/${orgId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(dataToSave)
-                });
-                if (response.ok) {
-                    document.getElementById('processedResult').innerHTML = `
-                        <div class="success-message">
-                            ✅ Данные организации успешно обновлены!
-                        </div>
-                    `;
-                    loadUserOrganizations();
-                    editForm.classList.remove('show');
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `Ошибка ${response.status}`);
-                }
-            } catch (error) {
-                console.error('Ошибка при сохранении:', error);
+            
+            // Simulate saving
+            setTimeout(() => {
                 document.getElementById('processedResult').innerHTML = `
-                    <div class="error-message">
-                        ❌ Ошибка сохранения: ${error.message}
+                    <div class="success-message">
+                        ✅ Данные организации успешно обновлены!
                     </div>
                 `;
-            }
+                editForm.classList.remove('show');
+            }, 500);
         });
+
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             const fileNameSpan = document.getElementById('fileName');
             if (file) {
-                fileNameSpan.innerHTML = `<div class="alert alert-info">Выбран файл: ${file.name}</div>`;
+                fileNameSpan.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} МБ)`;
             } else {
-                fileNameSpan.innerHTML = '';
+                fileNameSpan.textContent = '';
             }
         });
+
         processTextBtn.addEventListener('click', () => {
             const text = rawTextData.value.trim();
             if (!text) {
                 alert('Введите текст для обработки');
                 return;
             }
+            
             processData(text, 'text');
         });
+
         uploadBtn.addEventListener('click', () => {
             const file = fileInput.files[0];
             if (!file) {
                 alert('Выберите файл для загрузки');
                 return;
             }
+            
             processFile(file);
         });
-        async function processData(content, type) {
-            processLoading.classList.add('show');
-            processedResult.innerHTML = '';
-            try {
-                const response = await fetch('/api/parse', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ raw_text: content })
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    const html = `
-                        <div class="processed-data">
-                            <h3>Результат обработки ${type === 'text' ? 'текста' : 'файла'}:</h3>
-                            <pre>${JSON.stringify(data, null, 2)}</pre>
-                            <button class="btn btn-success" onclick="saveParsedDataToDatabase(${JSON.stringify(data).replace(/"/g, '&quot;')})">Сохранить в базу данных</button>
-                        </div>
-                    `;
-                    processedResult.innerHTML = html;
-                } else {
-                    throw new Error(data.error || `Ошибка ${response.status}`);
-                }
-            } catch (error) {
-                console.error('Ошибка при обработке текста:', error);
-                processedResult.innerHTML = `<div class="error-message">❌ Ошибка обработки: ${error.message}</div>`;
-            } finally {
-                processLoading.classList.remove('show');
-            }
-        }
-        async function processFile(file) {
-            const fileName = file.name.toLowerCase();
-            processLoading.classList.add('show');
-            processedResult.innerHTML = '';
-            try {
-                if (fileName.endsWith('.pdf')) {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    const response = await fetch('/api/parse/pdf', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const data = await response.json();
-                    if (response.ok) {
-                         const html = `
-                            <div class="processed-data">
-                                <h3>Результат обработки PDF:</h3>
-                                <pre>${JSON.stringify(data, null, 2)}</pre>
-                                <button class="btn btn-success" onclick="saveParsedDataToDatabase(${JSON.stringify(data).replace(/"/g, '&quot;')})">Сохранить в базу данных</button>
-                            </div>
-                        `;
-                        processedResult.innerHTML = html;
-                    } else {
-                        throw new Error(data.error || `Ошибка ${response.status}`);
-                    }
-                } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-                    const reader = new FileReader();
-                    reader.onload = async function(e) {
-                        try {
-                            const data = new Uint8Array(e.target.result);
-                            const workbook = XLSX.read(data, {type: 'array'});
-                            const sheetName = workbook.SheetNames[0];
-                            const worksheet = workbook.Sheets[sheetName];
-                            const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
-                            let extractedText = 'Данные из Excel:\n';
-                            jsonData.forEach((row, index) => {
-                                if (row.length > 0) {
-                                    extractedText += row.join(' | ') + '\n';
-                                }
-                            });
-                            await processData(extractedText, 'file');
-                        } catch (readError) {
-                            processLoading.classList.remove('show');
-                            console.error('Ошибка при чтении Excel:', readError);
-                            processedResult.innerHTML = `<div class="error-message">❌ Ошибка при чтении файла Excel: ${readError.message}</div>`;
-                        }
-                    };
-                    reader.readAsArrayBuffer(file);
-                    return;
-                } else {
-                    throw new Error('Поддерживаются только файлы Excel (.xlsx, .xls) и PDF (.pdf)');
-                }
-            } catch (error) {
-                console.error('Ошибка при обработке файла:', error);
-                processedResult.innerHTML = `<div class="error-message">❌ Ошибка обработки файла: ${error.message}</div>`;
-            } finally {
-                processLoading.classList.remove('show');
-            }
-        }
-        async function saveParsedDataToDatabase(parsedData) {
-            if (!parsedData || typeof parsedData !== 'object') {
-                alert('Неверный формат данных для сохранения');
-                return;
-            }
-            const saveData = {
-                user_id: currentUser.id,
-                inn: parsedData.inn || parsedData.INN || '',
-                short_name: parsedData.short_name || parsedData.shortName || parsedData.name || parsedData.Name || '',
-                full_name: parsedData.full_name || parsedData.fullName || parsedData.name || parsedData.Name || '',
-                status: parsedData.status || parsedData.Status || '',
-                legal_address: parsedData.legal_address || parsedData.legalAddress || parsedData.address || parsedData.Address || '',
-                production_address: parsedData.production_address || parsedData.productionAddress || '',
-                main_industry: parsedData.main_industry || parsedData.mainIndustry || parsedData.industry || parsedData.Industry || '',
-                sub_industry: parsedData.sub_industry || parsedData.subIndustry || '',
-                main_okved: parsedData.main_okved || parsedData.mainOkved || parsedData.okved || parsedData.OKVED || '',
-                registration_date: parsedData.registration_date || parsedData.registrationDate || parsedData.date || parsedData.Date || '',
-                director: parsedData.director || parsedData.Director || parsedData.director_name || parsedData.directorName || '',
-                okrug: parsedData.okrug || parsedData.okrug || '',
-                raion: parsedData.raion || parsedData.raion || '',
-                financial_data: Array.isArray(parsedData.financial_data) ? parsedData.financial_data : [],
-                personnel_data: Array.isArray(parsedData.personnel_data) ? parsedData.personnel_data : []
-            };
 
-            try {
-                const response = await fetch('/api/save', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(saveData)
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    processedResult.innerHTML += `
-                        <div class="success-message">
-                            ✅ Данные успешно сохранены в базе данных! ID новой организации: ${result.organization_id}
-                        </div>
-                    `;
-                    loadUserOrganizations();
-                } else {
-                    throw new Error(result.error || `Ошибка ${response.status}`);
-                }
-            } catch (error) {
-                console.error('Ошибка при сохранении в БД:', error);
-                processedResult.innerHTML += `<div class="error-message">❌ Ошибка сохранения в БД: ${error.message}</div>`;
+        function processData(content, type) {
+            processLoading.classList.add('show');
+            processedResult.innerHTML = '';
+            
+            // Simulate AI processing
+            setTimeout(() => {
+                processLoading.classList.remove('show');
+                
+                const processedData = {
+                    name: "ООО 'Обработанные данные'",
+                    inn: "1234567890",
+                    address: "Москва, ул. Примерная, д. 123",
+                    director: "Петров Петр Петрович",
+                    revenue: 1000000,
+                    employees: 50,
+                    okved: "62.01",
+                    industry: "IT-услуги"
+                };
+                
+                const html = `
+                    <div class="processed-data">
+                        <h3>Результат обработки ${type === 'text' ? 'текста' : 'файла'}:</h3>
+                        <p><strong>Название:</strong> ${processedData.name}</p>
+                        <p><strong>ИНН:</strong> ${processedData.inn}</p>
+                        <p><strong>Адрес:</strong> ${processedData.address}</p>
+                        <p><strong>Директор:</strong> ${processedData.director}</p>
+                        <p><strong>Выручка:</strong> ${processedData.revenue.toLocaleString()} руб.</p>
+                        <p><strong>Численность:</strong> ${processedData.employees} человек</p>
+                        <p><strong>ОКВЭД:</strong> ${processedData.okved}</p>
+                        <p><strong>Отрасль:</strong> ${processedData.industry}</p>
+                        
+                        <button class="btn btn-success" onclick="saveToDatabase()">Сохранить в базу данных</button>
+                    </div>
+                `;
+                
+                processedResult.innerHTML = html;
+            }, 2000);
+        }
+
+        function processFile(file) {
+            const fileName = file.name.toLowerCase();
+            
+            if (fileName.endsWith('.pdf')) {
+                // Mock PDF processing
+                processData(`PDF файл: ${file.name}`, 'file');
+            } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                // Real Excel processing
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const sheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                        
+                        let extractedText = 'Данные из Excel:\n';
+                        jsonData.forEach((row, index) => {
+                            if (index < 10 && row.length > 0) { // Show first 10 rows
+                                extractedText += row.join(' | ') + '\n';
+                            }
+                        });
+                        
+                        processData(extractedText, 'file');
+                    } catch (error) {
+                        alert('Ошибка при чтении файла Excel: ' + error.message);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                alert('Поддерживаются только файлы Excel (.xlsx, .xls) и PDF (.pdf)');
             }
         }
+
+        function saveToDatabase() {
+            processedResult.innerHTML += `
+                <div class="success-message">
+                    ✅ Данные успешно сохранены в базе данных!
+                </div>
+            `;
+        }
+        
+        function editExtractedData() {
+            alert('Функция редактирования извлеченных данных будет добавлена в следующей версии');
+        }
+
         // Reports functionality
         const industrySelect = document.getElementById('industrySelect');
         const generateReportBtn = document.getElementById('generateReportBtn');
         const exportPdfBtn = document.getElementById('exportPdfBtn');
         const industryReport = document.getElementById('industryReport');
+
         generateReportBtn.addEventListener('click', () => {
             const industry = industrySelect.value;
             if (!industry) {
                 alert('Выберите отрасль');
                 return;
             }
+            
             currentIndustry = industry;
             generateIndustryReport(industry);
         });
+
         exportPdfBtn.addEventListener('click', () => {
             if (!currentIndustry) {
                 alert('Сначала сгенерируйте отчет');
                 return;
             }
+            
             exportReportToPDF(currentIndustry);
         });
+
         function generateIndustryReport(industry) {
-            const industryData = {
-                chemical: {
-                    name: "Химическая промышленность",
-                    count: 15,
-                    total_revenue: 8500,
-                    avg_employees: 125,
-                    organizations: [
-                        { name: 'АО "СВОБОДА"', inn: "7714431171", address: "ул. Вятская, д. 47", revenue: 750, employees: 150 },
-                        { name: 'ООО "Химпром"', inn: "7714123456", address: "ул. Ленина, д. 25", revenue: 1200, employees: 180 },
-                        { name: 'ЗАО "Синтез"', inn: "7714789012", address: "пр-т Мира, д. 15", revenue: 890, employees: 95 }
-                    ]
-                },
-                machine: {
-                    name: "Машиностроение",
-                    count: 32,
-                    total_revenue: 15200,
-                    avg_employees: 280,
-                    organizations: [
-                        { name: 'ОАО "Машиностроитель"', inn: "7715123456", address: "ул. Промышленная, д. 10", revenue: 2500, employees: 320 },
-                        { name: 'ООО "Техника"', inn: "7715789012", address: "ш. Энтузиастов, д. 45", revenue: 1800, employees: 250 }
-                    ]
-                },
-                food: {
-                    name: "Пищевая промышленность",
-                    count: 48,
-                    total_revenue: 9800,
-                    avg_employees: 95,
-                    organizations: [
-                        { name: 'ООО "Хлебопек"', inn: "7716123456", address: "ул. Хлебная, д. 8", revenue: 650, employees: 85 },
-                        { name: 'ЗАО "Молпродукт"', inn: "7716789012", address: "ул. Молочная, д. 12", revenue: 980, employees: 120 }
-                    ]
-                }
-            };
             const data = industryData[industry];
             if (!data) {
                 alert('Данные для выбранной отрасли недоступны');
                 return;
             }
+            
             const html = `
+                <div class="dashboard">
+                    <div class="chart-box">
+                        <h3>Распределение выручки по организациям</h3>
+                        <div class="chart-container">
+                            <canvas id="industryPieChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <h3>Среднее количество сотрудников</h3>
+                        <div class="chart-container">
+                            <canvas id="industryEmployeesChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <h3>Динамика выручки отрасли</h3>
+                        <div class="chart-container">
+                            <canvas id="industryTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="dashboard">
                     <div class="stats-card">
                         <div class="stats-number">${data.count}</div>
@@ -1583,14 +1562,15 @@
                         <div>Средняя численность</div>
                     </div>
                 </div>
+                
                 <div class="table-container">
                     <h3>Организации в отрасли: ${data.name}</h3>
-                    <table class="industry-table" id="industryTable">
+                    <table id="industryTable">
                         <thead>
                             <tr>
-                                <th data-sort="name">Название</th>
-                                <th data-sort="inn">ИНН</th>
-                                <th data-sort="address">Адрес</th>
+                                <th>Название</th>
+                                <th>ИНН</th>
+                                <th>Адрес</th>
                                 <th>Выручка 2024 (млн руб.)</th>
                                 <th>Численность</th>
                             </tr>
@@ -1609,26 +1589,83 @@
                     </table>
                 </div>
             `;
+            
             industryReport.innerHTML = html;
+            
+            // Create charts after DOM update
             setTimeout(() => {
                 createIndustryCharts(data);
             }, 100);
         }
-        function createIndustryCharts(data) {
-            const destroyChart = (canvasId) => {
-                const existingChart = Chart.getChart(canvasId);
-                if (existingChart) {
-                    existingChart.destroy();
-                }
-            };
-            destroyChart('industryPieChart');
-            destroyChart('industryEmployeesChart');
-            destroyChart('industryTrendChart');
 
+        function createIndustryCharts(data) {
             const colors = ['#1FB8CD', '#FFC185', '#B4413C', '#ECEBD5', '#5D878F'];
+            
+            // Pie Chart - Revenue Distribution
+            new Chart(document.getElementById('industryPieChart'), {
+                type: 'pie',
+                data: {
+                    labels: data.organizations.map(org => org.name),
+                    datasets: [{
+                        data: data.organizations.map(org => org.revenue),
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 10
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Bar Chart - Employees
+            new Chart(document.getElementById('industryEmployeesChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.organizations.map(org => org.name),
+                    datasets: [{
+                        label: 'Сотрудники',
+                        data: data.organizations.map(org => org.employees),
+                        backgroundColor: '#3e95cd',
+                        borderColor: '#1e3a8a',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Line Chart - Revenue Trend (mock data)
             const years = [2020, 2021, 2022, 2023, 2024];
             const trendData = [data.total_revenue * 0.7, data.total_revenue * 0.8, data.total_revenue * 0.9, data.total_revenue * 0.95, data.total_revenue];
-
+            
             new Chart(document.getElementById('industryTrendChart'), {
                 type: 'line',
                 data: {
@@ -1658,57 +1695,138 @@
                 }
             });
         }
-        function exportReportToPDF(industry) {
-            const industryData = {
-                chemical: {
-                    name: "Химическая промышленность",
-                    count: 15,
-                    total_revenue: 8500,
-                    avg_employees: 125,
-                    organizations: [
-                        { name: 'АО "СВОБОДА"', inn: "7714431171", address: "ул. Вятская, д. 47", revenue: 750, employees: 150 },
-                        { name: 'ООО "Химпром"', inn: "7714123456", address: "ул. Ленина, д. 25", revenue: 1200, employees: 180 },
-                        { name: 'ЗАО "Синтез"', inn: "7714789012", address: "пр-т Мира, д. 15", revenue: 890, employees: 95 }
-                    ]
-                },
-                machine: {
-                    name: "Машиностроение",
-                    count: 32,
-                    total_revenue: 15200,
-                    avg_employees: 280,
-                    organizations: [
-                        { name: 'ОАО "Машиностроитель"', inn: "7715123456", address: "ул. Промышленная, д. 10", revenue: 2500, employees: 320 },
-                        { name: 'ООО "Техника"', inn: "7715789012", address: "ш. Энтузиастов, д. 45", revenue: 1800, employees: 250 }
-                    ]
-                },
-                food: {
-                    name: "Пищевая промышленность",
-                    count: 48,
-                    total_revenue: 9800,
-                    avg_employees: 95,
-                    organizations: [
-                        { name: 'ООО "Хлебопек"', inn: "7716123456", address: "ул. Хлебная, д. 8", revenue: 650, employees: 85 },
-                        { name: 'ЗАО "Молпродукт"', inn: "7716789012", address: "ул. Молочная, д. 12", revenue: 980, employees: 120 }
-                    ]
-                }
+
+        // НОВАЯ ФУНКЦИЯ: Сохранение в базу данных
+        async function saveToDatabase(orgData) {
+            if (!confirm(`Сохранить организацию "${orgData.short_name || orgData.full_name}" в базу данных?`)) {
+                return;
+            }
+            
+            // Подготавливаем данные для сохранения
+            const dataToSave = {
+                inn: orgData.inn,
+                short_name: orgData.short_name || orgData.full_name,
+                full_name: orgData.full_name || orgData.short_name,
+                status: orgData.status || 'Действующая',
+                legal_address: orgData.legal_address,
+                registration_date: orgData.registration_date,
+                director: orgData.director,
+                main_okved: orgData.okved,
+                main_industry: detectIndustry(orgData.okved),
+                user_id: currentUser ? 1 : 1
             };
+            
+            try {
+                // Имитируем API запрос на сохранение
+                await simulateSaveAPI(dataToSave);
+                
+                // Добавляем в локальную базу данных
+                organizationData[orgData.inn] = {
+                    ...dataToSave,
+                    production_address: orgData.legal_address,
+                    additional_address: "",
+                    sub_industry: "",
+                    okved_activity: orgData.okved,
+                    production_okved: orgData.okved.split(' ')[0],
+                    parent_company: "",
+                    parent_inn: "",
+                    contact_management: "",
+                    contact_employee: "",
+                    contact_emergency: "",
+                    website: "",
+                    email: "",
+                    support_measures: "",
+                    special_status: "",
+                    sme_status: "Не определен",
+                    export_available: "Нет",
+                    export_countries: "",
+                    coordinates_legal: "",
+                    coordinates_production: "",
+                    coordinates_additional: "",
+                    latitude: 55.7558,
+                    longitude: 37.6173,
+                    okrug: "ЦАО",
+                    raion: "Пресненский",
+                    financial_data: [
+                        { year: 2022, revenue: 0, net_profit: 0 },
+                        { year: 2023, revenue: 0, net_profit: 0 },
+                        { year: 2024, revenue: 0, net_profit: 0 }
+                    ],
+                    personnel_data: [
+                        { year: 2022, total_employees: 0, avg_salary_moscow: 0 },
+                        { year: 2023, total_employees: 0, avg_salary_moscow: 0 },
+                        { year: 2024, total_employees: 0, avg_salary_moscow: 0 }
+                    ]
+                };
+                
+                alert(`✅ Организация "${dataToSave.short_name}" успешно сохранена в базу данных!`);
+                
+            } catch (error) {
+                alert(`❌ Ошибка сохранения: ${error.message}`);
+            }
+        }
+
+        // Имитация API запроса для сохранения
+        function simulateSaveAPI(data) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    if (Math.random() > 0.1) { // 90% успех
+                        resolve({ status: 'success', organization_id: Math.floor(Math.random() * 1000) + 1 });
+                    } else {
+                        reject(new Error('Ошибка соединения с базой данных'));
+                    }
+                }, 1000);
+            });
+        }
+
+        // Определение отрасли по ОКВЭД
+        function detectIndustry(okved) {
+            if (!okved) return 'Не определена';
+            
+            const okvед_lower = okved.toLowerCase();
+            
+            if (okvед_lower.includes('химич') || okvед_lower.includes('косметич') || okvед_lower.includes('20.')) {
+                return 'Химическая промышленность';
+            } else if (okvед_lower.includes('машин') || okvед_lower.includes('28.') || okvед_lower.includes('29.')) {
+                return 'Машиностроение';
+            } else if (okvед_lower.includes('пищ') || okvед_lower.includes('10.') || okvед_lower.includes('11.')) {
+                return 'Пищевая промышленность';
+            } else if (okvед_lower.includes('строит') || okvед_lower.includes('41.') || okvед_lower.includes('42.') || okvед_lower.includes('43.')) {
+                return 'Строительство';
+            } else if (okvед_lower.includes('торгов') || okvед_lower.includes('46.') || okvед_lower.includes('47.')) {
+                return 'Торговля';
+            }
+            
+            return 'Прочие виды деятельности';
+        }
+
+        function exportReportToPDF(industry) {
             const data = industryData[industry];
             if (!data) {
                 alert('Нет данных для экспорта');
                 return;
             }
+            
+            // Create PDF using jsPDF
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
+            
+            // Title
             doc.setFontSize(18);
             doc.text('Отчет по отрасли', 20, 20);
+            
             doc.setFontSize(14);
             doc.text(`Отрасль: ${data.name}`, 20, 35);
             doc.text(`Дата: ${new Date().toLocaleDateString('ru-RU')}`, 20, 45);
+            
+            // Statistics
             doc.setFontSize(12);
             doc.text('Общая статистика:', 20, 60);
             doc.text(`Количество предприятий: ${data.count}`, 25, 70);
             doc.text(`Суммарная выручка: ${data.total_revenue.toLocaleString()} млн руб.`, 25, 80);
             doc.text(`Средняя численность: ${data.avg_employees} человек`, 25, 90);
+            
+            // Table
             const tableData = data.organizations.map(org => [
                 org.name,
                 org.inn,
@@ -1716,6 +1834,7 @@
                 `${org.revenue} млн`,
                 org.employees.toString()
             ]);
+            
             doc.autoTable({
                 startY: 105,
                 head: [['Название', 'ИНН', 'Адрес', 'Выручка 2024', 'Численность']],
@@ -1730,10 +1849,14 @@
                     textColor: 255
                 }
             });
+            
+            // Save the PDF
             doc.save(`отчет_${data.name}_${new Date().toISOString().split('T')[0]}.pdf`);
         }
+
         // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
+            // Auto-fill demo credentials
             document.getElementById('username').value = 'admin';
             document.getElementById('password').value = 'admin';
         });
