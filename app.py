@@ -111,30 +111,45 @@ def api_parse():
         return jsonify({'error': f'JSON parsing error: {e}', 'received_text': json_text}), 500
     except Exception as e:
         return jsonify({'error': f'LLM parsing error: {e}'}), 500
-
 @app.route('/api/fns/search/<inn>', methods=['GET'])
 def search_fns(inn):
     if not inn.isdigit():
         return jsonify({'error': 'ИНН должен содержать только цифры'}), 400
 
-    params = {'q': inn, 'key': FNS_API_KEY}
+    # Используем метод egr вместо search
+    EGR_API_URL = "https://api-fns.ru/api/egr"
+    params = {'req': inn, 'key': FNS_API_KEY}
     headers = {
         "User-Agent": "FNS API Client (Python)"
     }
 
     try:
-        response = requests.get(FNS_API_URL, params=params, headers=headers, timeout=10)
+        response = requests.get(EGR_API_URL, params=params, headers=headers, timeout=10)
+
+        # Логирование для отладки (опционально)
+        # print(f"Status: {response.status_code}, Response: {response.text[:300]}")
+
         if response.status_code == 403:
             return jsonify({
-                'error': '403 Forbidden: проверьте API-ключ, лимиты и корректность URL (убедитесь, что нет пробелов в FNS_API_URL)'
+                'error': '403 Forbidden: проверьте API-ключ и лимиты. Метод egr может иметь отдельный лимит.'
             }), 403
+
         response.raise_for_status()
-        return jsonify(response.json())
+        data = response.json()
+
+        # Проверка: если items пуст — компания не найдена
+        if not data.get('items'):
+            return jsonify({'error': 'Компания с таким ИНН не найдена'}), 404
+
+        return jsonify(data)
+
+    except requests.exceptions.Timeout:
+        return jsonify({'error': 'Таймаут запроса к API ФНС'}), 504
     except requests.exceptions.RequestException as e:
-        return jsonify({'error': f'Ошибка запроса к API ФНС: {str(e)}'}), 500
+        return jsonify({'error': f'Сетевая ошибка: {str(e)}'}), 500
     except ValueError:
         return jsonify({
-            'error': 'Ответ от API не является JSON',
+            'error': 'Ответ от API не в формате JSON',
             'raw_response': response.text[:500] if 'response' in locals() else 'Нет ответа'
         }), 502
 
