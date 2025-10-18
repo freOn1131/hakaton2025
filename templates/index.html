@@ -16,22 +16,24 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: white;
-            color: #333;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: white;
         }
 
         .header {
-            background-color: #1e3a8a;
+            background: #1e3a8a;
             color: white;
-            padding: 1rem;
-            text-align: center;
+            padding: 15px 20px;
+            font-size: 20px;
+            font-weight: bold;
         }
 
         .container {
-            max-width: 1200px;
+            padding: 30px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 2rem;
         }
 
         .login-container {
@@ -55,28 +57,26 @@
 
         .form-group input {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
         }
 
         .btn {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            background-color: #1e3a8a;
+            padding: 10px 20px;
+            background: #1e3a8a;
             color: white;
-            text-decoration: none;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 1rem;
-            margin: 0.25rem;
-            transition: background-color 0.3s;
+            font-size: 16px;
+            margin: 5px;
+            transition: background 0.3s;
         }
 
         .btn:hover {
-            background-color: #1e40af;
+            background: #152d6b;
         }
 
         .btn-secondary {
@@ -101,34 +101,34 @@
         }
 
         .navigation {
-            background-color: #f0f0f0;
-            padding: 1rem;
-            border-bottom: 2px solid #ddd;
+            background: #f0f0f0;
+            padding: 0;
+            display: flex;
         }
 
         .nav-tabs {
             display: flex;
-            gap: 1rem;
-            justify-content: center;
+            width: 100%;
         }
 
         .nav-tab {
-            padding: 0.75rem 1.5rem;
-            background-color: transparent;
+            padding: 15px 30px;
             border: none;
-            border-radius: 5px;
+            background: transparent;
             cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
+            font-size: 16px;
+            transition: background 0.3s;
+            flex: 1;
+            text-align: center;
+        }
+
+        .nav-tab:hover {
+            background: #ddd;
         }
 
         .nav-tab.active {
-            background-color: #1e3a8a;
-            color: white;
-        }
-
-        .nav-tab:hover:not(.active) {
-            background-color: #ddd;
+            background: white;
+            border-bottom: 3px solid #1e3a8a;
         }
 
         .tab-content {
@@ -158,23 +158,26 @@
             flex: 1;
         }
 
-        select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-            background-color: white;
+        input[type="text"], select, textarea {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 10px 0;
         }
 
-        textarea {
-            width: 100%;
-            min-height: 120px;
-            padding: 0.75rem;
+        table {
             border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-            resize: vertical;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            font-weight: bold;
         }
 
         .file-input {
@@ -251,18 +254,22 @@
             height: 300px;
         }
 
+        .dashboard-card, .stat-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
         .dashboard {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
         .stats-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
 
@@ -432,22 +439,45 @@
             <div id="search-tab" class="tab-content active">
                 <h2>Поиск организаций</h2>
                 
+                <!-- API Search Section -->
                 <div class="search-section">
+                    <h3>Поиск через ФНС API</h3>
                     <div class="form-row">
                         <div>
                             <label>Провайдер API:</label>
-                            <select id="apiProvider">
+                            <select id="apiProvider" style="padding: 10px; font-size: 16px; width: 300px;">
                                 <option value="fns">API-ФНС</option>
                                 <option value="dadata">DaData</option>
                                 <option value="spark">СПАРК Интерфакс</option>
                             </select>
                         </div>
                         <div>
-                            <label>ИНН или название организации:</label>
-                            <input type="text" id="searchQuery" placeholder="Введите ИНН или название">
+                            <label>ИНН организации:</label>
+                            <input type="text" id="searchQuery" placeholder="Введите ИНН" style="padding: 10px; font-size: 16px; width: 400px;">
                         </div>
                         <div>
-                            <button class="btn" id="searchBtn">Найти в ФНС API</button>
+                            <button class="btn" id="searchBtn" style="padding: 10px 20px;">🔍 Найти в API</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Search Section -->
+                <div class="search-section" style="margin-top: 30px;">
+                    <h3>Поиск в базе данных</h3>
+                    <div class="form-row">
+                        <div>
+                            <label>Поисковый запрос:</label>
+                            <input type="text" id="dbSearchQuery" placeholder="Название или ИНН" style="padding: 10px; font-size: 16px; width: 400px;">
+                        </div>
+                        <div>
+                            <label>Тип поиска:</label>
+                            <select id="searchType" style="padding: 10px; font-size: 16px; width: 200px;">
+                                <option value="inn">По ИНН</option>
+                                <option value="name">По названию</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button class="btn" id="dbSearchBtn" style="padding: 10px 20px;">🔍 Найти в БД</button>
                         </div>
                     </div>
                 </div>
@@ -457,6 +487,7 @@
                 </div>
 
                 <div id="searchResults"></div>
+                <div id="dbSearchResults"></div>
                 <div id="organizationDetails"></div>
             </div>
 
@@ -468,15 +499,13 @@
                     <div class="form-row">
                         <div>
                             <label>Выберите вашу организацию:</label>
-                            <select id="userOrganization">
-                                <option value="">Выберите организацию</option>
+                            <select id="userOrganization" style="padding: 10px; font-size: 16px; width: 400px;">
+                                <option value="">-- Выберите организацию --</option>
                                 <option value="7714431171">АО "СВОБОДА"</option>
-                                <option value="other1">ООО "Пример 1"</option>
-                                <option value="other2">ЗАО "Пример 2"</option>
                             </select>
                         </div>
                         <div>
-                            <button class="btn btn-secondary" id="editOrgBtn">Редактировать свои данные организации</button>
+                            <button class="btn btn-secondary" id="editOrgBtn" style="padding: 10px 20px;">✏️ Редактировать данные организации</button>
                         </div>
                     </div>
                 </div>
@@ -484,49 +513,181 @@
                 <div class="edit-form" id="editForm">
                     <h3>Редактирование данных организации</h3>
                     <form id="organizationEditForm">
+                        <h4>Основные данные:</h4>
                         <div class="form-grid">
                             <div class="form-group">
-                                <label>Название:</label>
-                                <input type="text" id="edit_name" name="name">
-                            </div>
-                            <div class="form-group">
                                 <label>ИНН:</label>
-                                <input type="text" id="edit_inn" name="inn" readonly>
+                                <input type="text" id="edit_inn" name="inn" readonly style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
-                                <label>Адрес:</label>
-                                <input type="text" id="edit_address" name="address">
+                                <label>Краткое наименование:</label>
+                                <input type="text" id="edit_short_name" name="short_name" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
-                                <label>Директор:</label>
-                                <input type="text" id="edit_director" name="director">
+                                <label>Полное наименование:</label>
+                                <input type="text" id="edit_full_name" name="full_name" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
-                                <label>Отрасль:</label>
-                                <input type="text" id="edit_industry" name="industry">
+                                <label>Статус:</label>
+                                <input type="text" id="edit_status" name="status" style="padding: 10px; font-size: 16px;">
                             </div>
                             <div class="form-group">
-                                <label>ОКВЭД:</label>
-                                <input type="text" id="edit_okved" name="okved">
+                                <label>Юридический адрес:</label>
+                                <input type="text" id="edit_legal_address" name="legal_address" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Адрес производства:</label>
+                                <input type="text" id="edit_production_address" name="production_address" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Дополнительный адрес:</label>
+                                <input type="text" id="edit_additional_address" name="additional_address" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Основная отрасль:</label>
+                                <input type="text" id="edit_main_industry" name="main_industry" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Подотрасль:</label>
+                                <input type="text" id="edit_sub_industry" name="sub_industry" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Основной ОКВЭД:</label>
+                                <input type="text" id="edit_main_okved" name="main_okved" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Вид деятельности по ОКВЭД:</label>
+                                <input type="text" id="edit_okved_activity" name="okved_activity" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Производственный ОКВЭД:</label>
+                                <input type="text" id="edit_production_okved" name="production_okved" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Дата регистрации:</label>
+                                <input type="text" id="edit_registration_date" name="registration_date" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Руководитель:</label>
+                                <input type="text" id="edit_director" name="director" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Головная организация:</label>
+                                <input type="text" id="edit_parent_company" name="parent_company" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>ИНН головной:</label>
+                                <input type="text" id="edit_parent_inn" name="parent_inn" style="padding: 10px; font-size: 16px;">
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-success">Сохранить изменения</button>
-                        <button type="button" class="btn btn-secondary" id="cancelEditBtn">Отмена</button>
+                        
+                        <h4>Контактные данные:</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Контакты руководства:</label>
+                                <input type="text" id="edit_contact_management" name="contact_management" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Контакт сотрудника:</label>
+                                <input type="text" id="edit_contact_employee" name="contact_employee" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Контакты по ЧС:</label>
+                                <input type="text" id="edit_contact_emergency" name="contact_emergency" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Сайт:</label>
+                                <input type="text" id="edit_website" name="website" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Email:</label>
+                                <input type="email" id="edit_email" name="email" style="padding: 10px; font-size: 16px;">
+                            </div>
+                        </div>
+
+                        <h4>Статусы и поддержка:</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Меры поддержки:</label>
+                                <input type="text" id="edit_support_measures" name="support_measures" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Особый статус:</label>
+                                <input type="text" id="edit_special_status" name="special_status" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Статус МСП:</label>
+                                <input type="text" id="edit_sme_status" name="sme_status" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Экспорт:</label>
+                                <select id="edit_export_available" name="export_available" style="padding: 10px; font-size: 16px;">
+                                    <option value="Да">Да</option>
+                                    <option value="Нет">Нет</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Страны экспорта:</label>
+                                <input type="text" id="edit_export_countries" name="export_countries" style="padding: 10px; font-size: 16px;">
+                            </div>
+                        </div>
+
+                        <h4>Координаты:</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Координаты юр. адреса:</label>
+                                <input type="text" id="edit_coordinates_legal" name="coordinates_legal" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Координаты производства:</label>
+                                <input type="text" id="edit_coordinates_production" name="coordinates_production" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Координаты доп. площадки:</label>
+                                <input type="text" id="edit_coordinates_additional" name="coordinates_additional" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Широта:</label>
+                                <input type="number" id="edit_latitude" name="latitude" step="any" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Долгота:</label>
+                                <input type="number" id="edit_longitude" name="longitude" step="any" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Округ:</label>
+                                <input type="text" id="edit_okrug" name="okrug" style="padding: 10px; font-size: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Район:</label>
+                                <input type="text" id="edit_raion" name="raion" style="padding: 10px; font-size: 16px;">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success" style="padding: 10px 20px;">💾 Сохранить изменения</button>
+                        <button type="button" class="btn btn-secondary" id="cancelEditBtn" style="padding: 10px 20px;">Отмена</button>
                     </form>
                 </div>
                 
-                <h3>Способ 1: Текстовый ввод</h3>
+                <hr style="margin: 40px 0;">
+
+                <h3>Добавление новых данных</h3>
+
+                <h4>Способ 1: Ввод текста</h4>
                 <div class="form-group">
                     <label>Введите сырые данные:</label>
-                    <textarea id="rawTextData" placeholder="Вставьте данные организации для обработки..."></textarea>
-                    <button class="btn" id="processTextBtn">Обработать текст</button>
+                    <textarea id="rawTextData" placeholder="Вставьте данные организации..." style="padding: 10px; font-size: 16px; width: 100%; min-height: 120px;"></textarea>
+                    <button class="btn" id="processTextBtn" style="padding: 10px 20px;">🤖 Обработать текст нейросетью</button>
                 </div>
 
-                <h3>Способ 2: Загрузка файлов</h3>
+                <h4>Способ 2: Загрузка файлов</h4>
                 <div class="file-input">
-                    <input type="file" id="fileInput" accept=".xlsx,.xls,.pdf" style="margin-bottom: 1rem;">
-                    <div class="file-info" id="fileInfo"></div>
-                    <button class="btn" id="uploadBtn">Загрузить и обработать</button>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls,.pdf" style="display: none;">
+                    <label for="fileInput" style="display: inline-block; padding: 10px 20px; background: #1e3a8a; color: white; cursor: pointer; border-radius: 4px; font-size: 16px;">
+                        📁 Выбрать файл (Excel или PDF)
+                    </label>
+                    <span id="fileName" style="margin-left: 10px; font-size: 16px;"></span>
+                    <button class="btn" id="uploadBtn" style="padding: 10px 20px; margin-left: 10px;">⬆️ Загрузить и обработать</button>
                 </div>
 
                 <div class="loading" id="processLoading">
@@ -571,14 +732,35 @@
                 short_name: 'АО "СВОБОДА"',
                 full_name: 'АКЦИОНЕРНОЕ ОБЩЕСТВО "СВОБОДА"',
                 status: "Действующая",
-                legal_address: "127015, г. Москва, ул. Вятская, д. 47 стр. 8",
+                legal_address: "127015, г. Москва, ул. Вятская, д. 47 стр. 8 этаж 1 помещение VIII комната 1",
+                production_address: "127015, г. Москва, ул. Вятская, д. 47 стр. 8",
+                additional_address: "",
                 main_industry: "Химическая промышленность",
                 sub_industry: "Косметика",
-                okved: "20.42",
-                director: "Иванов Иван Иванович",
+                main_okved: "20.42",
+                okved_activity: "Производство парфюмерных и косметических средств",
+                production_okved: "20.42",
+                registration_date: "15.03.1994",
+                director: "Иванова Мария Петровна",
+                parent_company: "",
+                parent_inn: "",
+                contact_management: "+7 (495) 123-45-67",
+                contact_employee: "info@svoboda.ru",
+                contact_emergency: "+7 (495) 123-45-68",
+                website: "www.svoboda.ru",
+                email: "info@svoboda.ru",
+                support_measures: "Субсидии на развитие производства 2023",
+                special_status: "Резидент ОЭЗ",
+                sme_status: "Среднее предприятие",
+                export_available: "Да",
+                export_countries: "Казахстан, Беларусь, Армения",
+                coordinates_legal: "55.802968, 37.580095",
+                coordinates_production: "55.802968, 37.580095",
+                coordinates_additional: "",
+                latitude: 55.802968,
+                longitude: 37.580095,
                 okrug: "САО",
                 raion: "Савёловский",
-                registration_date: "12.05.2005",
                 financial_data: [
                     { year: 2022, revenue: 500000, net_profit: 50000 },
                     { year: 2023, revenue: 600000, net_profit: 70000 },
@@ -692,51 +874,118 @@
         const apiProvider = document.getElementById('apiProvider');
         const searchResults = document.getElementById('searchResults');
         const searchLoading = document.getElementById('searchLoading');
+        
+        // Database search elements
+        const dbSearchBtn = document.getElementById('dbSearchBtn');
+        const dbSearchQuery = document.getElementById('dbSearchQuery');
+        const searchType = document.getElementById('searchType');
+        const dbSearchResults = document.getElementById('dbSearchResults');
 
-        searchBtn.addEventListener('click', performSearch);
+        searchBtn.addEventListener('click', performAPISearch);
         searchQuery.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                performSearch();
+                performAPISearch();
+            }
+        });
+        
+        dbSearchBtn.addEventListener('click', performDatabaseSearch);
+        dbSearchQuery.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performDatabaseSearch();
             }
         });
 
-        async function performSearch() {
+        // FNS API Search (simulated with real API parameters)
+        async function performAPISearch() {
             const query = searchQuery.value.trim();
             const provider = apiProvider.value;
             
             if (!query) {
-                alert('Введите ИНН или название организации');
+                alert('Введите ИНН организации');
                 return;
             }
 
             searchLoading.classList.add('show');
             searchResults.innerHTML = '';
             
-            // Simulate API call
+            // Simulate FNS API call with real parameters
+            // URL: https://api-fns.ru/api/search
+            // Params: {q: query, key: "30f98ca92ed94f3774fde7930d237775639fd7b5", filter: "active"}
+            // Headers: {"User-Agent": "Mozilla/5.0 (compatible; FNS API Client)"}
+            
             setTimeout(() => {
                 searchLoading.classList.remove('show');
                 
-                // Check if it's our test organization
-                if (query === '7714431171' || query.toLowerCase().includes('свобода')) {
-                    displaySearchResults([organizationData['7714431171']]);
+                let mockApiResults = [];
+                
+                if (query === '7714431171') {
+                    mockApiResults = [{
+                        inn: '7714431171',
+                        short_name: 'АО "СВОБОДА"',
+                        full_name: 'АКЦИОНЕРНОЕ ОБЩЕСТВО "СВОБОДА"',
+                        legal_address: '127015, г. Москва, ул. Вятская, д. 47 стр. 8',
+                        status: 'Действующая',
+                        director: 'Иванова Мария Петровна',
+                        registration_date: '15.03.1994',
+                        okved: '20.42 - Производство парфюмерных и косметических средств'
+                    }];
                 } else {
-                    // Mock search results
-                    const mockResults = [
-                        {
-                            inn: '1234567890',
-                            short_name: 'ООО "Пример"',
-                            legal_address: 'г. Москва, ул. Примерная, д. 1',
-                            status: 'Действующая'
-                        }
-                    ];
-                    displaySearchResults(mockResults);
+                    // Mock API response for other INNs
+                    mockApiResults = [{
+                        inn: query,
+                        short_name: `ООО "Организация ${query.slice(-3)}"`,
+                        full_name: `ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ОРГАНИЗАЦИЯ ${query.slice(-3)}"`,
+                        legal_address: 'г. Москва, ул. Примерная, д. 1',
+                        status: 'Действующая',
+                        director: 'Петров Петр Петрович',
+                        registration_date: '01.01.2020',
+                        okved: 'Прочая деятельность'
+                    }];
                 }
-            }, 1500);
+                
+                displayAPIResults(mockApiResults, provider);
+            }, 2000);
+        }
+        
+        // Database Search
+        async function performDatabaseSearch() {
+            const query = dbSearchQuery.value.trim();
+            const type = searchType.value;
+            
+            if (!query) {
+                alert('Введите поисковый запрос');
+                return;
+            }
+
+            dbSearchResults.innerHTML = '<p>🔍 Поиск в базе данных...</p>';
+            
+            setTimeout(() => {
+                let results = [];
+                
+                // Search in local database
+                Object.values(organizationData).forEach(org => {
+                    let match = false;
+                    
+                    if (type === 'inn' && org.inn.includes(query)) {
+                        match = true;
+                    } else if (type === 'name' && 
+                        (org.short_name.toLowerCase().includes(query.toLowerCase()) ||
+                         org.full_name.toLowerCase().includes(query.toLowerCase()))) {
+                        match = true;
+                    }
+                    
+                    if (match) {
+                        results.push(org);
+                    }
+                });
+                
+                displayDatabaseResults(results);
+            }, 1000);
         }
 
-        function displaySearchResults(results) {
+        function displayAPIResults(results, provider) {
             if (results.length === 0) {
-                searchResults.innerHTML = '<p>Организации не найдены</p>';
+                searchResults.innerHTML = '<p>❌ Организации не найдены в API</p>';
                 return;
             }
 
@@ -746,46 +995,105 @@
                     <p><strong>ИНН:</strong> ${org.inn}</p>
                     <p><strong>Адрес:</strong> ${org.legal_address}</p>
                     <p><strong>Статус:</strong> ${org.status}</p>
+                    <p><strong>Директор:</strong> ${org.director}</p>
+                    <p><strong>ОКВЭД:</strong> ${org.okved}</p>
+                    <p style="color: #1e3a8a; font-size: 12px;">Источник: ${provider.toUpperCase()}</p>
                 </div>
             `).join('');
             
-            searchResults.innerHTML = `<h3>Результаты поиска:</h3>${html}`;
+            searchResults.innerHTML = `<h3>✅ Результаты API поиска (${results.length}):</h3>${html}`;
+        }
+        
+        function displayDatabaseResults(results) {
+            if (results.length === 0) {
+                dbSearchResults.innerHTML = '<p>❌ Организации не найдены в базе данных</p>';
+                return;
+            }
+
+            const html = results.map(org => `
+                <div class="organization-card" onclick="showOrganizationDetails('${org.inn}')">
+                    <h3>${org.short_name}</h3>
+                    <p><strong>ИНН:</strong> ${org.inn}</p>
+                    <p><strong>Адрес:</strong> ${org.legal_address}</p>
+                    <p><strong>Статус:</strong> ${org.status}</p>
+                    <p><strong>Отрасль:</strong> ${org.main_industry}</p>
+                    <p style="color: #10b981; font-size: 12px;">Источник: База данных</p>
+                </div>
+            `).join('');
+            
+            dbSearchResults.innerHTML = `<h3>✅ Результаты поиска в БД (${results.length}):</h3>${html}`;
         }
 
         function showOrganizationDetails(inn) {
             const org = organizationData[inn];
             if (!org) {
-                alert('Подробная информация недоступна для данной организации');
+                alert('Подробная информация доступна только для организаций из базы данных');
                 return;
             }
 
             const detailsHtml = `
                 <div class="organization-details">
-                    <h3>Информация об организации</h3>
+                    <h3>📋 Полная информация об организации</h3>
+                    
+                    <h4>Основные данные:</h4>
                     <div class="details-grid">
-                        <div class="detail-item">
-                            <p><strong>Полное название:</strong> ${org.full_name}</p>
-                        </div>
                         <div class="detail-item">
                             <p><strong>ИНН:</strong> ${org.inn}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Адрес:</strong> ${org.legal_address}</p>
+                            <p><strong>Краткое наименование:</strong> ${org.short_name}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Директор:</strong> ${org.director}</p>
+                            <p><strong>Полное наименование:</strong> ${org.full_name}</p>
                         </div>
                         <div class="detail-item">
                             <p><strong>Статус:</strong> ${org.status}</p>
                         </div>
                         <div class="detail-item">
+                            <p><strong>Юридический адрес:</strong> ${org.legal_address}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Адрес производства:</strong> ${org.production_address}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Основная отрасль:</strong> ${org.main_industry}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Подотрасль:</strong> ${org.sub_industry}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Основной ОКВЭД:</strong> ${org.main_okved}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Вид деятельности:</strong> ${org.okved_activity}</p>
+                        </div>
+                        <div class="detail-item">
                             <p><strong>Дата регистрации:</strong> ${org.registration_date}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>ОКВЭД:</strong> ${org.okved}</p>
+                            <p><strong>Руководитель:</strong> ${org.director}</p>
+                        </div>
+                    </div>
+                    
+                    <h4>Контактные данные:</h4>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <p><strong>Контакт руководства:</strong> ${org.contact_management}</p>
                         </div>
                         <div class="detail-item">
-                            <p><strong>Отрасль:</strong> ${org.main_industry}</p>
+                            <p><strong>Контакт сотрудника:</strong> ${org.contact_employee}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Сайт:</strong> ${org.website}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Email:</strong> ${org.email}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Статус МСП:</strong> ${org.sme_status}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Экспорт:</strong> ${org.export_available}</p>
                         </div>
                         <div class="detail-item">
                             <p><strong>Округ:</strong> ${org.okrug}</p>
@@ -979,12 +1287,47 @@
             
             if (orgId === '7714431171') {
                 const org = organizationData[orgId];
-                document.getElementById('edit_name').value = org.short_name;
+                
+                // Основные данные
                 document.getElementById('edit_inn').value = org.inn;
-                document.getElementById('edit_address').value = org.legal_address;
+                document.getElementById('edit_short_name').value = org.short_name;
+                document.getElementById('edit_full_name').value = org.full_name;
+                document.getElementById('edit_status').value = org.status;
+                document.getElementById('edit_legal_address').value = org.legal_address;
+                document.getElementById('edit_production_address').value = org.production_address;
+                document.getElementById('edit_additional_address').value = org.additional_address;
+                document.getElementById('edit_main_industry').value = org.main_industry;
+                document.getElementById('edit_sub_industry').value = org.sub_industry;
+                document.getElementById('edit_main_okved').value = org.main_okved;
+                document.getElementById('edit_okved_activity').value = org.okved_activity;
+                document.getElementById('edit_production_okved').value = org.production_okved;
+                document.getElementById('edit_registration_date').value = org.registration_date;
                 document.getElementById('edit_director').value = org.director;
-                document.getElementById('edit_industry').value = org.main_industry;
-                document.getElementById('edit_okved').value = org.okved;
+                document.getElementById('edit_parent_company').value = org.parent_company;
+                document.getElementById('edit_parent_inn').value = org.parent_inn;
+                
+                // Контактные данные
+                document.getElementById('edit_contact_management').value = org.contact_management;
+                document.getElementById('edit_contact_employee').value = org.contact_employee;
+                document.getElementById('edit_contact_emergency').value = org.contact_emergency;
+                document.getElementById('edit_website').value = org.website;
+                document.getElementById('edit_email').value = org.email;
+                
+                // Статусы и поддержка
+                document.getElementById('edit_support_measures').value = org.support_measures;
+                document.getElementById('edit_special_status').value = org.special_status;
+                document.getElementById('edit_sme_status').value = org.sme_status;
+                document.getElementById('edit_export_available').value = org.export_available;
+                document.getElementById('edit_export_countries').value = org.export_countries;
+                
+                // Координаты
+                document.getElementById('edit_coordinates_legal').value = org.coordinates_legal;
+                document.getElementById('edit_coordinates_production').value = org.coordinates_production;
+                document.getElementById('edit_coordinates_additional').value = org.coordinates_additional;
+                document.getElementById('edit_latitude').value = org.latitude;
+                document.getElementById('edit_longitude').value = org.longitude;
+                document.getElementById('edit_okrug').value = org.okrug;
+                document.getElementById('edit_raion').value = org.raion;
                 
                 editForm.classList.add('show');
             } else {
@@ -1012,10 +1355,11 @@
 
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
+            const fileNameSpan = document.getElementById('fileName');
             if (file) {
-                fileInfo.textContent = `Выбран файл: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} МБ)`;
+                fileNameSpan.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} МБ)`;
             } else {
-                fileInfo.textContent = '';
+                fileNameSpan.textContent = '';
             }
         });
 
@@ -1119,6 +1463,10 @@
                     ✅ Данные успешно сохранены в базе данных!
                 </div>
             `;
+        }
+        
+        function editExtractedData() {
+            alert('Функция редактирования извлеченных данных будет добавлена в следующей версии');
         }
 
         // Reports functionality
@@ -1381,8 +1729,8 @@
         // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
             // Auto-fill demo credentials
-            document.getElementById('username').value = 'demo';
-            document.getElementById('password').value = 'demo';
+            document.getElementById('username').value = 'admin';
+            document.getElementById('password').value = 'admin';
         });
     </script>
 </body>
