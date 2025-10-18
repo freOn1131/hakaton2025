@@ -78,7 +78,6 @@ def api_parse():
             json_text = json_text[3:].strip()
             if json_text.endswith("```
                 json_text = json_text[:-3].strip()
-
         return jsonify(parsed)
     except Exception as e:
         return jsonify({'error': f'LLM parsing error: {e}'}), 500
