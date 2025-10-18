@@ -115,13 +115,38 @@ def api_parse():
 
 @app.route('/api/fns/search/<inn>', methods=['GET'])
 def search_fns(inn):
-    params = {'q': inn, 'key': FNS_API_KEY}
+    # Валидация ИНН (опционально, но рекомендуется)
+    if not inn.isdigit():
+        return jsonify({'error': 'ИНН должен содержать только цифры'}), 400
+
+    params = {
+        'q': inn,
+        'key': FNS_API_KEY
+    }
+
     try:
-        resp = requests.get(FNS_API_URL, params=params)
-        resp.raise_for_status()
-        return jsonify(resp.json())
+        response = requests.get(FNS_API_URL, params=params, timeout=10)
+        
+        # Если сервер вернул пустой ответ или не JSON
+        if not response.text.strip():
+            return jsonify({'error': 'Пустой ответ от API ФНС'}), 502
+
+        response.raise_for_status()
+        data = response.json()
+        return jsonify(data)
+
+    except requests.exceptions.Timeout:
+        return jsonify({'error': 'Таймаут при обращении к API ФНС'}), 504
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': f'Ошибка сети: {str(e)}'}), 502
+    except ValueError:
+        # JSON decode error
+        return jsonify({
+            'error': 'Некорректный ответ от API ФНС (не JSON)',
+            'raw_response': response.text[:500]  # для отладки
+        }), 502
     except Exception as e:
-        return jsonify({'error': f'FNS API error: {e}'}), 500
+        return jsonify({'error': f'Неизвестная ошибка: {str(e)}'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8188, debug=False)
