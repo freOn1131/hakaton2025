@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система управления предприятиями Москвы</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            /* Primitive Color Tokens */
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-gray-400: rgba(119, 124, 124, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-400: rgba(45, 166, 178, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-teal-800: rgba(41, 150, 161, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+
+            /* RGB versions for opacity control */
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            --color-slate-500-rgb: 98, 108, 113;
+            --color-red-500-rgb: 192, 21, 47;
+            --color-red-400-rgb: 255, 84, 89;
+            --color-orange-500-rgb: 168, 75, 47;
+            --color-orange-400-rgb: 230, 129, 97;
+
+            /* Background color tokens (Light Mode) */
+            --color-bg-1: rgba(59, 130, 246, 0.08);
+            --color-bg-2: rgba(245, 158, 11, 0.08);
+            --color-bg-3: rgba(34, 197, 94, 0.08);
+            --color-bg-4: rgba(239, 68, 68, 0.08);
+            --color-bg-5: rgba(147, 51, 234, 0.08);
+            --color-bg-6: rgba(249, 115, 22, 0.08);
+            --color-bg-7: rgba(236, 72, 153, 0.08);
+            --color-bg-8: rgba(6, 182, 212, 0.08);
+
+            /* Semantic Color Tokens */
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-text-secondary: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --color-primary-active: var(--color-teal-700);
+            --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
+            --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-btn-primary-text: var(--color-cream-50);
+            --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-error: var(--color-red-500);
+            --color-success: var(--color-teal-500);
+            --color-warning: var(--color-orange-500);
+            --color-info: var(--color-slate-500);
+            --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
+
+            /* Typography */
+            --font-family-base: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-md: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 18px;
+            --font-size-2xl: 20px;
+            --font-size-3xl: 24px;
+            --font-size-4xl: 30px;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 600;
+            --line-height-tight: 1.2;
+            --line-height-normal: 1.5;
+
+            /* Spacing */
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --space-32: 32px;
+
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-base: 8px;
+            --radius-md: 10px;
+            --radius-lg: 12px;
+            --radius-full: 9999px;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+
+            /* Animation */
+            --duration-fast: 150ms;
+            --duration-normal: 250ms;
+            --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-normal);
+            color: var(--color-text);
+            background-color: var(--color-background);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-20);
+        }
+
+        .card {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-card-border);
+            box-shadow: var(--shadow-sm);
+            padding: var(--space-24);
+            margin-bottom: var(--space-20);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-12) var(--space-24);
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            line-height: 1.5;
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-standard);
+            border: none;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .btn--primary {
+            background: var(--color-primary);
+            color: var(--color-btn-primary-text);
+        }
+
+        .btn--primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .btn--secondary {
+            background: var(--color-secondary);
+            color: var(--color-text);
+        }
+
+        .btn--secondary:hover {
+            background: var(--color-secondary-hover);
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: var(--space-12);
+            font-size: var(--font-size-base);
+            line-height: 1.5;
+            color: var(--color-text);
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            transition: border-color var(--duration-fast) var(--ease-standard);
+        }
+
+        .form-control:focus {
+            border-color: var(--color-primary);
+            outline: 2px solid var(--color-primary);
+            outline-offset: -2px;
+        }
+
+        .form-group {
+            margin-bottom: var(--space-16);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--space-8);
+            font-weight: var(--font-weight-medium);
+            font-size: var(--font-size-sm);
+        }
+
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-bg-1);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 400px;
+            padding: var(--space-32);
+        }
+
+        .auth-title {
+            text-align: center;
+            margin-bottom: var(--space-32);
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-primary);
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--color-border);
+            margin-bottom: var(--space-24);
+        }
+
+        .tab {
+            flex: 1;
+            padding: var(--space-16) var(--space-24);
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all var(--duration-normal) var(--ease-standard);
+            background: none;
+            border: none;
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .tab:hover {
+            background: var(--color-bg-1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-section {
+            display: flex;
+            gap: var(--space-16);
+            margin-bottom: var(--space-24);
+            align-items: end;
+        }
+
+        .search-input {
+            flex: 2;
+        }
+
+        .search-type {
+            flex: 1;
+        }
+
+        .search-button {
+            flex: 0 0 auto;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-24);
+            margin-top: var(--space-24);
+        }
+
+        .chart-container {
+            background: var(--color-surface);
+            border: 1px solid var(--color-card-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-20);
+            height: 300px;
+        }
+
+        .chart-title {
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-16);
+            text-align: center;
+        }
+
+        .organization-info {
+            background: var(--color-bg-2);
+            border: 1px solid var(--color-card-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-20);
+            margin-bottom: var(--space-24);
+        }
+
+        .organization-info h3 {
+            color: var(--color-primary);
+            margin-bottom: var(--space-16);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-12);
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .info-value {
+            font-weight: var(--font-weight-semibold);
+            margin-top: var(--space-4);
+        }
+
+        .add-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-32);
+            margin-bottom: var(--space-32);
+        }
+
+        .method-card {
+            background: var(--color-bg-3);
+            border: 1px solid var(--color-card-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-24);
+        }
+
+        .method-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-16);
+            color: var(--color-primary);
+        }
+
+        .file-input {
+            margin-bottom: var(--space-16);
+        }
+
+        .result-section {
+            background: var(--color-bg-4);
+            border: 1px solid var(--color-card-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-24);
+            margin-top: var(--space-24);
+        }
+
+        .result-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-16);
+            color: var(--color-primary);
+        }
+
+        .result-json {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            padding: var(--space-16);
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: var(--font-size-sm);
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: var(--space-16);
+        }
+
+        .industry-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: var(--space-24);
+            margin: var(--space-24) 0;
+        }
+
+        .stat-card {
+            background: var(--color-bg-5);
+            border: 1px solid var(--color-card-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-20);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-primary);
+            margin-bottom: var(--space-8);
+        }
+
+        .stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .companies-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--space-24);
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--color-card-border);
+        }
+
+        .companies-table th,
+        .companies-table td {
+            padding: var(--space-16);
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .companies-table th {
+            background: var(--color-bg-6);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-text);
+        }
+
+        .companies-table tr:hover {
+            background: var(--color-bg-1);
+        }
+
+        .error-message {
+            background: rgba(var(--color-red-500-rgb), 0.1);
+            color: var(--color-error);
+            padding: var(--space-16);
+            border-radius: var(--radius-base);
+            border: 1px solid rgba(var(--color-red-500-rgb), 0.2);
+            margin-bottom: var(--space-16);
+        }
+
+        .success-message {
+            background: rgba(var(--color-teal-500-rgb), 0.1);
+            color: var(--color-success);
+            padding: var(--space-16);
+            border-radius: var(--radius-base);
+            border: 1px solid rgba(var(--color-teal-500-rgb), 0.2);
+            margin-bottom: var(--space-16);
+        }
+
+        .loading {
+            text-align: center;
+            padding: var(--space-32);
+            color: var(--color-text-secondary);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-32);
+            padding-bottom: var(--space-16);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .header-title {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-primary);
+        }
+
+        .logout-btn {
+            background: var(--color-error);
+            color: var(--color-white);
+        }
+
+        .logout-btn:hover {
+            background: var(--color-red-400);
+        }
+
+        @media (max-width: 768px) {
+            .search-section {
+                flex-direction: column;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .add-methods {
+                grid-template-columns: 1fr;
+            }
+            
+            .industry-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .companies-table {
+                font-size: var(--font-size-sm);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Экран авторизации -->
+    <div id="authScreen" class="auth-container">
+        <div class="auth-card card">
+            <h1 class="auth-title">Вход в систему</h1>
+            <div id="authError" class="error-message hidden"></div>
+            <form id="authForm">
+                <div class="form-group">
+                    <label class="form-label" for="username">Имя пользователя</label>
+                    <input type="text" id="username" class="form-control" required value="admin">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Пароль</label>
+                    <input type="password" id="password" class="form-control" required value="admin">
+                </div>
+                <button type="submit" class="btn btn--primary" style="width: 100%;">Войти</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Главный экран -->
+    <div id="mainScreen" class="container hidden">
+        <div class="header">
+            <h1 class="header-title">Система управления предприятиями Москвы</h1>
+            <button id="logoutBtn" class="btn logout-btn">Выйти</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="view">Просмотр</button>
+            <button class="tab" data-tab="add">Добавление</button>
+            <button class="tab" data-tab="reports">Отчеты</button>
+        </div>
+
+        <!-- Вкладка Просмотр -->
+        <div id="viewTab" class="tab-content active">
+            <div class="card">
+                <h2>Поиск организации</h2>
+                <div class="search-section">
+                    <div class="search-input">
+                        <label class="form-label" for="searchQuery">Поисковый запрос</label>
+                        <input type="text" id="searchQuery" class="form-control" placeholder="Введите ИНН или название">
+                    </div>
+                    <div class="search-type">
+                        <label class="form-label" for="searchType">Тип поиска</label>
+                        <select id="searchType" class="form-control">
+                            <option value="inn">По ИНН</option>
+                            <option value="name">По названию</option>
+                        </select>
+                    </div>
+                    <div class="search-button">
+                        <button id="searchBtn" class="btn btn--primary">Найти</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="searchResults" class="hidden">
+                <div id="organizationInfo" class="organization-info">
+                    <!-- Информация об организации будет загружена сюда -->
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <div class="chart-title">Выручка по годам (млн руб.)</div>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Прибыль по годам (млн руб.)</div>
+                        <canvas id="profitChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Численность сотрудников</div>
+                        <canvas id="employeesChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Средняя зарплата в Москве (тыс. руб.)</div>
+                        <canvas id="salaryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="searchError" class="error-message hidden"></div>
+            <div id="searchLoading" class="loading hidden">Загрузка данных...</div>
+        </div>
+
+        <!-- Вкладка Добавление -->
+        <div id="addTab" class="tab-content">
+            <div class="add-methods">
+                <!-- Способ 1: Ввод сырых данных -->
+                <div class="method-card">
+                    <div class="method-title">Ввод сырых данных</div>
+                    <div class="form-group">
+                        <label class="form-label" for="rawDataInput">Данные организации</label>
+                        <textarea id="rawDataInput" class="form-control" rows="6" placeholder="Введите данные организации в свободной форме..."></textarea>
+                    </div>
+                    <button id="processRawBtn" class="btn btn--primary">Обработать данные</button>
+                </div>
+
+                <!-- Способ 2: Загрузка Excel файла -->
+                <div class="method-card">
+                    <div class="method-title">Загрузка Excel файла</div>
+                    <div class="file-input">
+                        <label class="form-label" for="excelFile">Выберите Excel файл</label>
+                        <input type="file" id="excelFile" class="form-control" accept=".xlsx,.xls">
+                    </div>
+                    <button id="processExcelBtn" class="btn btn--primary">Загрузить и обработать</button>
+                </div>
+            </div>
+
+            <div id="parseResults" class="result-section hidden">
+                <div class="result-title">Результат обработки</div>
+                <div id="parseResultJson" class="result-json"></div>
+                <div class="form-group">
+                    <button id="saveToDbBtn" class="btn btn--primary">Сохранить в БД</button>
+                    <button id="downloadReportBtn" class="btn btn--secondary">Скачать отчет</button>
+                </div>
+            </div>
+
+            <div id="parseError" class="error-message hidden"></div>
+            <div id="parseLoading" class="loading hidden">Обработка данных...</div>
+        </div>
+
+        <!-- Вкладка Отчеты -->
+        <div id="reportsTab" class="tab-content">
+            <div class="card">
+                <h2>Отчеты по отраслям</h2>
+                <div class="form-group">
+                    <label class="form-label" for="industrySelect">Выберите отрасль</label>
+                    <select id="industrySelect" class="form-control">
+                        <option value="">-- Выберите отрасль --</option>
+                        <option value="Авиационная промышленность">Авиационная промышленность</option>
+                        <option value="Автомобильная промышленность">Автомобильная промышленность</option>
+                        <option value="Деревообработка">Деревообработка</option>
+                        <option value="Кожевенная, меховая и обувная промышленность">Кожевенная, меховая и обувная промышленность</option>
+                        <option value="Легкая промышленность">Легкая промышленность</option>
+                        <option value="Машиностроение и металлообработка">Машиностроение и металлообработка</option>
+                        <option value="Медицинская промышленность">Медицинская промышленность</option>
+                        <option value="Металлургическая промышленность">Металлургическая промышленность</option>
+                        <option value="Нефтехимическая промышленность">Нефтехимическая промышленность</option>
+                        <option value="Пищевая промышленность">Пищевая промышленность</option>
+                        <option value="Полиграфическая промышленность">Полиграфическая промышленность</option>
+                        <option value="Производство готовых металлических изделий">Производство готовых металлических изделий</option>
+                        <option value="Производство мебели">Производство мебели</option>
+                        <option value="Производство прочей неметаллической минеральной продукции">Производство прочей неметаллической минеральной продукции</option>
+                        <option value="Производство строительных материалов">Производство строительных материалов</option>
+                        <option value="Производство электрооборудования">Производство электрооборудования</option>
+                        <option value="Производство электронных и оптических изделий">Производство электронных и оптических изделий</option>
+                        <option value="Производство ювелирных изделий">Производство ювелирных изделий</option>
+                        <option value="Прочие отрасли">Прочие отрасли</option>
+                        <option value="Радиоэлектронная промышленность">Радиоэлектронная промышленность</option>
+                        <option value="Ракетно-космическая промышленность">Ракетно-космическая промышленность</option>
+                        <option value="Судостроение">Судостроение</option>
+                        <option value="Фармацевтическая промышленность">Фармацевтическая промышленность</option>
+                        <option value="Химическая промышленность">Химическая промышленность</option>
+                    </select>
+                </div>
+                <button id="loadReportBtn" class="btn btn--primary">Загрузить отчет</button>
+            </div>
+
+            <div id="industryReport" class="hidden">
+                <div class="industry-stats">
+                    <div class="stat-card">
+                        <div id="companiesCount" class="stat-value">0</div>
+                        <div class="stat-label">Количество предприятий</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="totalRevenue" class="stat-value">0</div>
+                        <div class="stat-label">Суммарная выручка (млн руб.)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="avgEmployees" class="stat-value">0</div>
+                        <div class="stat-label">Средняя численность</div>
+                    </div>
+                </div>
+
+                <table id="companiesTable" class="companies-table">
+                    <thead>
+                        <tr>
+                            <th>Название</th>
+                            <th>ИНН</th>
+                            <th>Адрес</th>
+                            <th>Выручка 2024</th>
+                            <th>Численность</th>
+                        </tr>
+                    </thead>
+                    <tbody id="companiesTableBody">
+                        <!-- Данные будут загружены сюда -->
+                    </tbody>
+                </table>
+
+                <button id="downloadIndustryReportBtn" class="btn btn--secondary">Скачать отчет</button>
+            </div>
+
+            <div id="reportError" class="error-message hidden"></div>
+            <div id="reportLoading" class="loading hidden">Загрузка отчета...</div>
+        </div>
+    </div>
+
+    <script>
+        // Глобальные переменные для состояния приложения
+        let isAuthenticated = false;
+        let currentUser = null;
+        let charts = {};
+        let currentOrganization = null;
+        let parseResult = null;
+
+        // Инициализация приложения
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            setupEventListeners();
+            checkAuthState();
+        }
+
+        function setupEventListeners() {
+            // Авторизация
+            document.getElementById('authForm').addEventListener('submit', handleAuth);
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
+            // Переключение вкладок
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', (e) => switchTab(e.target.dataset.tab));
+            });
+
+            // Поиск организаций
+            document.getElementById('searchBtn').addEventListener('click', handleSearch);
+            document.getElementById('searchQuery').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSearch();
+            });
+
+            // Обработка данных
+            document.getElementById('processRawBtn').addEventListener('click', handleProcessRaw);
+            document.getElementById('processExcelBtn').addEventListener('click', handleProcessExcel);
+            document.getElementById('saveToDbBtn').addEventListener('click', handleSaveToDb);
+            document.getElementById('downloadReportBtn').addEventListener('click', handleDownloadReport);
+
+            // Отчеты
+            document.getElementById('loadReportBtn').addEventListener('click', handleLoadReport);
+            document.getElementById('downloadIndustryReportBtn').addEventListener('click', handleDownloadIndustryReport);
+        }
+
+        function checkAuthState() {
+            if (isAuthenticated) {
+                showMainScreen();
+            } else {
+                showAuthScreen();
+            }
+        }
+
+        // Функции авторизации
+        async function handleAuth(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                showElement('authLoading', true);
+                hideElement('authError');
+                
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({username, password})
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'success') {
+                    isAuthenticated = true;
+                    currentUser = username;
+                    showMainScreen();
+                } else {
+                    showError('authError', data.message || 'Ошибка авторизации');
+                }
+            } catch (error) {
+                console.error('Auth error:', error);
+                showError('authError', 'Ошибка соединения с сервером');
+            } finally {
+                hideElement('authLoading');
+            }
+        }
+
+        function handleLogout() {
+            isAuthenticated = false;
+            currentUser = null;
+            currentOrganization = null;
+            parseResult = null;
+            
+            // Очистка графиков
+            Object.values(charts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+            charts = {};
+            
+            showAuthScreen();
+        }
+
+        function showAuthScreen() {
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('mainScreen').classList.add('hidden');
+        }
+
+        function showMainScreen() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mainScreen').classList.remove('hidden');
+        }
+
+        // Функции переключения вкладок
+        function switchTab(tabName) {
+            // Убираем активность со всех вкладок
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Активируем выбранную вкладку
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Функции поиска
+        async function handleSearch() {
+            const query = document.getElementById('searchQuery').value.trim();
+            const searchType = document.getElementById('searchType').value;
+            
+            if (!query) {
+                showError('searchError', 'Введите поисковый запрос');
+                return;
+            }
+            
+            try {
+                showElement('searchLoading');
+                hideElement('searchError');
+                hideElement('searchResults');
+                
+                let response;
+                if (searchType === 'inn') {
+                    response = await fetch(`/api/fns/search/${encodeURIComponent(query)}`);
+                } else {
+                    // Для поиска по названию используем тот же endpoint с параметром
+                    response = await fetch(`/api/fns/search/${encodeURIComponent(query)}?type=name`);
+                }
+                
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'success') {
+                    currentOrganization = data.data;
+                    displayOrganization(data.data);
+                    showElement('searchResults');
+                } else {
+                    showError('searchError', data.message || 'Организация не найдена');
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                showError('searchError', 'Ошибка при поиске организации');
+            } finally {
+                hideElement('searchLoading');
+            }
+        }
+
+        function displayOrganization(org) {
+            const infoContainer = document.getElementById('organizationInfo');
+            
+            infoContainer.innerHTML = `
+                <h3>${org.full_name || org.short_name || 'Неизвестная организация'}</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">ИНН</span>
+                        <span class="info-value">${org.inn || 'Не указан'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Статус</span>
+                        <span class="info-value">${org.status || 'Неизвестен'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Юридический адрес</span>
+                        <span class="info-value">${org.legal_address || 'Не указан'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Отрасль</span>
+                        <span class="info-value">${org.main_industry || 'Не указана'}</span>
+                    </div>
+                </div>
+            `;
+            
+            // Создание графиков
+            createCharts(org);
+        }
+
+        function createCharts(org) {
+            // Очистка существующих графиков
+            Object.values(charts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+            charts = {};
+            
+            // Подготовка данных
+            const years = ['2022', '2023', '2024'];
+            const revenueData = [];
+            const profitData = [];
+            const employeesData = [];
+            const salaryData = [];
+            
+            if (org.financial_data) {
+                org.financial_data.forEach(item => {
+                    revenueData.push(item.revenue / 1000); // Конвертация в млн
+                    profitData.push(item.net_profit / 1000);
+                });
+            }
+            
+            if (org.personnel_data) {
+                org.personnel_data.forEach(item => {
+                    employeesData.push(item.moscow_employees);
+                    salaryData.push(item.avg_salary_moscow);
+                });
+            }
+            
+            // Создание графиков
+            createLineChart('revenueChart', 'Выручка (млн руб.)', years, revenueData, '#1FB8CD');
+            createLineChart('profitChart', 'Прибыль (млн руб.)', years, profitData, '#FFC185');
+            createBarChart('employeesChart', 'Численность', years, employeesData, '#B4413C');
+            createLineChart('salaryChart', 'Средняя зарплата (тыс. руб.)', years, salaryData, '#5D878F');
+        }
+
+        function createLineChart(canvasId, label, labels, data, color) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            charts[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: color + '20',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createBarChart(canvasId, label, labels, data, color) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            charts[canvasId] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        backgroundColor: color,
+                        borderColor: color,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Функции добавления данных
+        async function handleProcessRaw() {
+            const rawText = document.getElementById('rawDataInput').value.trim();
+            
+            if (!rawText) {
+                showError('parseError', 'Введите данные для обработки');
+                return;
+            }
+            
+            await processData({raw_text: rawText});
+        }
+
+        async function handleProcessExcel() {
+            const fileInput = document.getElementById('excelFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showError('parseError', 'Выберите файл для загрузки');
+                return;
+            }
+            
+            try {
+                const fileContent = await readFileAsText(file);
+                await processData({raw_text: fileContent});
+            } catch (error) {
+                console.error('File reading error:', error);
+                showError('parseError', 'Ошибка при чтении файла');
+            }
+        }
+
+        async function processData(requestData) {
+            try {
+                showElement('parseLoading');
+                hideElement('parseError');
+                hideElement('parseResults');
+                
+                const response = await fetch('/api/parse', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'success') {
+                    parseResult = data.data;
+                    displayParseResult(data.data);
+                    showElement('parseResults');
+                } else {
+                    showError('parseError', data.message || 'Ошибка при обработке данных');
+                }
+            } catch (error) {
+                console.error('Parse error:', error);
+                showError('parseError', 'Ошибка соединения с сервером');
+            } finally {
+                hideElement('parseLoading');
+            }
+        }
+
+        function displayParseResult(result) {
+            const container = document.getElementById('parseResultJson');
+            container.textContent = JSON.stringify(result, null, 2);
+        }
+
+        function readFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = (e) => reject(e);
+                reader.readAsText(file);
+            });
+        }
+
+        async function handleSaveToDb() {
+            if (!parseResult) {
+                showError('parseError', 'Нет данных для сохранения');
+                return;
+            }
+            
+            // Здесь должен быть запрос к API для сохранения в БД
+            showSuccess('parseError', 'Данные сохранены в базу данных');
+        }
+
+        function handleDownloadReport() {
+            if (!parseResult) {
+                showError('parseError', 'Нет данных для скачивания');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(parseResult, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'organization_data.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+
+        // Функции отчетов
+        async function handleLoadReport() {
+            const industry = document.getElementById('industrySelect').value;
+            
+            if (!industry) {
+                showError('reportError', 'Выберите отрасль');
+                return;
+            }
+            
+            try {
+                showElement('reportLoading');
+                hideElement('reportError');
+                hideElement('industryReport');
+                
+                // Имитация загрузки данных (в реальном приложении здесь был бы API запрос)
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Тестовые данные для демонстрации
+                const mockData = generateMockIndustryData(industry);
+                displayIndustryReport(mockData);
+                
+                showElement('industryReport');
+            } catch (error) {
+                console.error('Report error:', error);
+                showError('reportError', 'Ошибка при загрузке отчета');
+            } finally {
+                hideElement('reportLoading');
+            }
+        }
+
+        function generateMockIndustryData(industry) {
+            // Генерация тестовых данных для демонстрации
+            const companiesCount = Math.floor(Math.random() * 50) + 10;
+            const totalRevenue = Math.floor(Math.random() * 10000) + 1000;
+            const avgEmployees = Math.floor(Math.random() * 500) + 50;
+            
+            const companies = [];
+            for (let i = 0; i < Math.min(companiesCount, 10); i++) {
+                companies.push({
+                    name: `Организация ${i + 1} (${industry})`,
+                    inn: `77${Math.random().toString().substr(2, 8)}`,
+                    address: `г Москва, ул Тестовая, д ${i + 1}`,
+                    revenue_2024: Math.floor(Math.random() * 1000) + 100,
+                    employees: Math.floor(Math.random() * 300) + 20
+                });
+            }
+            
+            return {
+                industry,
+                statistics: {
+                    companies_count: companiesCount,
+                    total_revenue: totalRevenue,
+                    avg_employees: avgEmployees
+                },
+                companies
+            };
+        }
+
+        function displayIndustryReport(data) {
+            // Обновление статистики
+            document.getElementById('companiesCount').textContent = data.statistics.companies_count;
+            document.getElementById('totalRevenue').textContent = data.statistics.total_revenue.toLocaleString();
+            document.getElementById('avgEmployees').textContent = data.statistics.avg_employees;
+            
+            // Обновление таблицы
+            const tableBody = document.getElementById('companiesTableBody');
+            tableBody.innerHTML = '';
+            
+            data.companies.forEach(company => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${company.name}</td>
+                    <td>${company.inn}</td>
+                    <td>${company.address}</td>
+                    <td>${company.revenue_2024.toLocaleString()} млн руб.</td>
+                    <td>${company.employees} чел.</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function handleDownloadIndustryReport() {
+            // Имитация скачивания PDF отчета
+            showSuccess('reportError', 'Отчет будет скачан в ближайшее время');
+        }
+
+        // Утилитарные функции
+        function showElement(elementId, isLoading = false) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.classList.remove('hidden');
+            }
+        }
+
+        function hideElement(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.classList.add('hidden');
+            }
+        }
+
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = message;
+                element.className = 'error-message';
+                element.classList.remove('hidden');
+            }
+        }
+
+        function showSuccess(elementId, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = message;
+                element.className = 'success-message';
+                element.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
