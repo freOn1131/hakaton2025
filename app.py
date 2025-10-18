@@ -126,16 +126,17 @@ def search_fns(inn):
         response = requests.get(FNS_API_URL, params=params, headers=headers, timeout=10)
         if response.status_code == 403:
             return jsonify({
-                'error': 'Доступ запрещён (403). Проверьте API-ключ, лимиты или IP-адрес.'
+                'error': '403 Forbidden: проверьте API-ключ, лимиты и корректность URL (убедитесь, что нет пробелов в FNS_API_URL)'
             }), 403
         response.raise_for_status()
         return jsonify(response.json())
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 403:
-            return jsonify({'error': '403 Forbidden: проверьте ключ и лимиты API'}), 403
-        return jsonify({'error': f'HTTP ошибка: {str(e)}'}), 500
-    except Exception as e:
-        return jsonify({'error': f'Неизвестная ошибка: {str(e)}'}), 500
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': f'Ошибка запроса к API ФНС: {str(e)}'}), 500
+    except ValueError:
+        return jsonify({
+            'error': 'Ответ от API не является JSON',
+            'raw_response': response.text[:500] if 'response' in locals() else 'Нет ответа'
+        }), 502
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8188, debug=False)
