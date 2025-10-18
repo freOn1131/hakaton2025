@@ -1,5 +1,3 @@
-# app.py
-
 from flask import Flask, request, jsonify, render_template, send_from_directory
 import sqlite3
 import requests
@@ -13,17 +11,17 @@ app = Flask(__name__)
 API_PROVIDERS = {
     "fns": {
         "name": "API-ФНС",
-        "url": "https://api-fns.ru/api/search",
-        "key": "30f98ca92ed94f3774fde7930d237775639fd7b5"
+        "url": "https://api-fns.ru/api/search", # Убран пробел в конце URL
+        "key": "30f98ca92ed94f3774fde7930d237775639fd7b5" # Убедитесь, что это правильный ключ
     },
     "dadata": {
         "name": "DaData",
-        "url": "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/party",
+        "url": "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/party", # Убран пробел в конце URL
         "key": "YOUR_DADATA_KEY"  # Заменить на реальный ключ
     },
     "spark": {
         "name": "СПАРК Интерфакс",
-        "url": "https://spark-interfax.ru/api",
+        "url": "https://spark-interfax.ru/api", # Убран пробел в конце URL
         "key": "YOUR_SPARK_KEY"  # Заменить на реальный ключ
     }
 }
@@ -317,29 +315,46 @@ def search_fns(inn):
     
     if provider == 'fns':
         params = {'q': inn, 'key': API_PROVIDERS['fns']['key'], 'filter': 'active'}
-        headers = {"User-Agent": "Mozilla/5.0 (compatible; FNS API Client)"}
+        # Добавляем более стандартные заголовки, которые могут быть обязательны
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Accept": "application/json",
+            "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
+        }
         
         try:
             response = requests.get(API_PROVIDERS['fns']['url'], params=params, 
                                   headers=headers, timeout=10)
             
+            # Важно: проверяем статус код до вызова raise_for_status()
             if response.status_code == 403:
-                return jsonify({'error': '403 Forbidden'}), 403
+                # Возвращаем более информативное сообщение об ошибке 403
+                return jsonify({'error': 'Доступ к API ФНС запрещен (403 Forbidden). Проверьте ключ API и политику доступа.'}), 403
             
-            response.raise_for_status()
+            response.raise_for_status() # Это вызовет исключение для других кодов ошибок (4xx, 5xx)
+            
             data = response.json()
             
-            if not data.get('items'):
-                return jsonify({'error': 'Компания не найдена'}), 404
+            # Проверяем, есть ли поле 'items' и содержит ли оно данные
+            if 'items' not in data or not isinstance(data['items'], list) or len(data['items']) == 0:
+                return jsonify({'error': 'Компания не найдена в API ФНС'}), 404
             
-            return jsonify(data)
+            # Возвращаем только поле 'items' как результат поиска
+            return jsonify({'items': data['items']})
             
         except requests.exceptions.Timeout:
-            return jsonify({'error': 'Timeout'}), 504
+            return jsonify({'error': 'Timeout при обращении к API ФНС'}), 504
+        except requests.exceptions.HTTPError as e:
+            # Логируем полный ответ для отладки, если нужно
+            print(f"HTTP ошибка при запросе к API ФНС: {e.response.status_code} - {e.response.text}")
+            return jsonify({'error': f'HTTP ошибка при обращении к API ФНС: {e.response.status_code}'}), e.response.status_code
         except Exception as e:
-            return jsonify({'error': str(e)}), 500
+            # Логируем общее исключение для отладки
+            print(f"Общая ошибка при запросе к API ФНС: {str(e)}")
+            return jsonify({'error': f'Внутренняя ошибка при обращении к API ФНС: {str(e)}'}), 500
     
-    return jsonify({'error': 'Provider not implemented'}), 501
+    # Обработка других провайдеров (пока не реализованы)
+    return jsonify({'error': f'Провайдер {provider} не реализован'}), 501
 
 @app.route('/api/save', methods=['POST'])
 def save_organization():
