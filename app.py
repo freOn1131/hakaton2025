@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 # Исправлена URL-адрес API FNS: убрана лишняя строка и пробелы
 FNS_API_URL = "https://api-fns.ru/api/search"
-FNS_API_KEY = "c35fe9f432d553652e59bb7edfdcb4137f64cfe0"
+FNS_API_KEY = "30f98ca92ed94f3774fde7930d237775639fd7b5"
 LLM_API_URL = "http://10.250.12.109:8080/api/chat/completions"
 LLM_API_KEY = "sk-8c3828c838c94a6ab0c04d0deee2f799"
 
