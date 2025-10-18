@@ -1,6 +1,5 @@
-# app.py - Обновленный файл с исправлениями и новыми функциями
+# app.py
 
-```python
 from flask import Flask, request, jsonify, render_template, send_from_directory
 import sqlite3
 import requests
