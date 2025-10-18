@@ -69,6 +69,7 @@ def api_parse():
         result = resp.json()
         json_text = result['choices'][0]['message']['content'].strip()
         # Очистка возможных Markdown кодовых блоков
+        json_text = result['choices'][0]['message']['content'].strip()
         if json_text.startswith("```
             json_text = json_text```json"):].strip()
             if json_text.endswith("```
@@ -77,7 +78,7 @@ def api_parse():
             json_text = json_text[3:].strip()
             if json_text.endswith("```
                 json_text = json_text[:-3].strip()
-        parsed = json.loads(json_text)
+
         return jsonify(parsed)
     except Exception as e:
         return jsonify({'error': f'LLM parsing error: {e}'}), 500
