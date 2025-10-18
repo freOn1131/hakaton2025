@@ -727,6 +727,7 @@
         let currentUserOrganizations = [];
         let currentOrganizationDetails = null;
         let currentIndustry = null;
+
         // DOM elements
         const loginPage = document.getElementById('loginPage');
         const mainApp = document.getElementById('mainApp');
@@ -735,6 +736,7 @@
         const gosuslugiLoginBtn = document.getElementById('gosuslugiLogin');
         const logoutBtn = document.getElementById('logoutBtn');
         const showRegisterLink = document.getElementById('showRegister');
+
         // Tab switching
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
@@ -742,18 +744,14 @@
                 switchTab(tabName);
             });
         });
+
         function switchTab(tabName) {
-            // Update tab buttons
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
             document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById(`${tabName}-tab`).classList.add('active');
         }
+
         // Login functionality
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -762,9 +760,7 @@
             try {
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
                 });
                 const data = await response.json();
@@ -780,12 +776,9 @@
                 alert('Ошибка подключения к серверу');
             }
         });
-        ecpLoginBtn.addEventListener('click', () => {
-            alert('Функция входа по ЭЦП в разработке');
-        });
-        gosuslugiLoginBtn.addEventListener('click', () => {
-            alert('Функция входа через Госуслуги в разработке');
-        });
+
+        ecpLoginBtn.addEventListener('click', () => alert('Функция входа по ЭЦП в разработке'));
+        gosuslugiLoginBtn.addEventListener('click', () => alert('Функция входа через Госуслуги в разработке'));
         logoutBtn.addEventListener('click', () => {
             currentUser = null;
             currentUserOrganizations = [];
@@ -795,51 +788,41 @@
         showRegisterLink.addEventListener('click', (e) => {
             e.preventDefault();
             alert('Регистрация новых пользователей временно недоступна.');
-            // Можно реализовать форму регистрации
         });
+
         function showMainApp() {
             loginPage.classList.add('hidden');
             mainApp.classList.add('active');
         }
+
         function showLoginPage() {
             mainApp.classList.remove('active');
             loginPage.classList.remove('hidden');
-            // Очищаем поля формы
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
         }
+
         // Search functionality
         const searchBtn = document.getElementById('searchBtn');
         const searchQuery = document.getElementById('searchQuery');
         const apiProvider = document.getElementById('apiProvider');
         const searchResults = document.getElementById('searchResults');
         const searchLoading = document.getElementById('searchLoading');
-        // Database search elements
         const dbSearchBtn = document.getElementById('dbSearchBtn');
         const dbSearchQuery = document.getElementById('dbSearchQuery');
         const searchType = document.getElementById('searchType');
         const dbSearchResults = document.getElementById('dbSearchResults');
+
         searchBtn.addEventListener('click', performAPISearch);
-        searchQuery.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                performAPISearch();
-            }
-        });
+        searchQuery.addEventListener('keypress', (e) => { if (e.key === 'Enter') performAPISearch(); });
         dbSearchBtn.addEventListener('click', performDatabaseSearch);
-        dbSearchQuery.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                performDatabaseSearch();
-            }
-        });
+        dbSearchQuery.addEventListener('keypress', (e) => { if (e.key === 'Enter') performDatabaseSearch(); });
+
         async function performAPISearch() {
             const query = searchQuery.value.trim();
             const provider = apiProvider.value;
-            if (!query) {
-                alert('Введите ИНН организации');
-                return;
-            }
-            if (!/^\d+$/.test(query)) {
-                alert('ИНН должен содержать только цифры');
+            if (!query || !/^\d+$/.test(query)) {
+                alert('Введите корректный ИНН');
                 return;
             }
             searchLoading.classList.add('show');
@@ -857,6 +840,7 @@
                 searchResults.innerHTML = `<p class="error-message">❌ Ошибка поиска: ${error.message}</p>`;
             }
         }
+
         async function performDatabaseSearch() {
             const query = dbSearchQuery.value.trim();
             const type = searchType.value;
@@ -868,19 +852,12 @@
             try {
                 const response = await fetch(`/api/user/organizations/${currentUser.id}`);
                 const allOrgs = await response.json();
-                if (!response.ok) {
-                    throw new Error(allOrgs.error || `Ошибка ${response.status}`);
-                }
+                if (!response.ok) throw new Error(allOrgs.error || `Ошибка ${response.status}`);
                 let results = allOrgs.filter(org => {
-                    let match = false;
-                    if (type === 'inn' && org.inn && org.inn.includes(query)) {
-                        match = true;
-                    } else if (type === 'name' && org.short_name && org.full_name &&
-                        (org.short_name.toLowerCase().includes(query.toLowerCase()) ||
-                         org.full_name.toLowerCase().includes(query.toLowerCase()))) {
-                        match = true;
-                    }
-                    return match;
+                    if (type === 'inn' && org.inn?.includes(query)) return true;
+                    if (type === 'name' && (org.short_name?.toLowerCase().includes(query.toLowerCase()) ||
+                        org.full_name?.toLowerCase().includes(query.toLowerCase()))) return true;
+                    return false;
                 });
                 displayDatabaseResults(results);
             } catch (error) {
@@ -888,21 +865,19 @@
                 dbSearchResults.innerHTML = `<p class="error-message">❌ Ошибка поиска в БД: ${error.message}</p>`;
             }
         }
+
         function displayAPIResults(results, provider) {
             searchLoading.classList.remove('show');
             if (results.length === 0) {
                 searchResults.innerHTML = '<p>❌ Организации не найдены в API</p>';
                 return;
             }
-            // ВАЖНО: Предполагается, что 'results' уже является массивом из 'items'
-            // и каждый элемент имеет структуру { "ЮЛ": { ... } }
             const html = results.map(org => `
                 <div class="organization-card" onclick="showOrganizationDetailsFromAPI('${org.ЮЛ.ИНН}', arguments[0])">
                     <h3>${org.ЮЛ.НаимСокрЮЛ || org.ЮЛ.НаимПолнЮЛ}</h3>
                     <p><strong>ИНН:</strong> ${org.ЮЛ.ИНН}</p>
                     <p><strong>Адрес:</strong> ${org.ЮЛ.АдресПолн || 'Не указан'}</p>
                     <p><strong>Статус:</strong> ${org.ЮЛ.Статус || 'Не указан'}</p>
-                    <!-- Внимание: API ФНС может не возвращать ФИО директора в поле 'Руководитель' внутри 'ЮЛ' напрямую в этом ответе -->
                     <p><strong>Директор:</strong> ${org.ЮЛ.Руководитель || 'Не указан в этом ответе API'}</p>
                     <p><strong>Основной вид деят.:</strong> ${org.ЮЛ.ОснВидДеят || 'Не указан'}</p>
                     <p style="color: #1e3a8a; font-size: 12px;">Источник: ${provider.toUpperCase()}</p>
@@ -910,6 +885,7 @@
             `).join('');
             searchResults.innerHTML = `<h3>✅ Результаты API поиска (${results.length}):</h3>${html}`;
         }
+
         function displayDatabaseResults(results) {
             if (results.length === 0) {
                 dbSearchResults.innerHTML = '<p>❌ Организации не найдены в базе данных</p>';
@@ -927,6 +903,7 @@
             `).join('');
             dbSearchResults.innerHTML = `<h3>✅ Результаты поиска в БД (${results.length}):</h3>${html}`;
         }
+
         async function showOrganizationDetailsFromAPI(inn, event) {
             event.stopPropagation();
             try {
@@ -945,6 +922,7 @@
                 alert('Ошибка при получении деталей организации');
             }
         }
+
         async function loadUserOrganizations() {
             if (!currentUser) return;
             try {
@@ -959,6 +937,7 @@
                 console.error('Ошибка загрузки организаций:', error);
             }
         }
+
         function populateUserOrganizationSelect() {
             const select = document.getElementById('userOrganization');
             select.innerHTML = '<option value="">-- Выберите организацию --</option>';
@@ -969,6 +948,7 @@
                 select.appendChild(option);
             });
         }
+
         async function showOrganizationDetails(orgId) {
             try {
                 const response = await fetch(`/api/organization/${orgId}`);
@@ -983,6 +963,7 @@
                 alert('Ошибка при получении деталей организации');
             }
         }
+
         function showOrganizationDetailsFromData(org) {
             const detailsHtml = `
                 <div class="organization-details">
@@ -1082,16 +1063,13 @@
                 </div>
             `;
             document.getElementById('organizationDetails').innerHTML = detailsHtml;
-            setTimeout(() => {
-                createOrganizationCharts(org);
-            }, 100);
+            setTimeout(() => createOrganizationCharts(org), 100);
         }
+
         function createOrganizationCharts(org) {
             const financialData = org.financial_data || [];
             const personnelData = org.personnel_data || [];
-
             const years = [...new Set([...financialData.map(d => d.year), ...personnelData.map(d => d.year)])].sort((a, b) => a - b);
-
             const revenue = years.map(year => {
                 const entry = financialData.find(d => d.year === year);
                 return entry ? entry.revenue : 0;
@@ -1111,10 +1089,9 @@
 
             const destroyChart = (canvasId) => {
                 const existingChart = Chart.getChart(canvasId);
-                if (existingChart) {
-                    existingChart.destroy();
-                }
+                if (existingChart) existingChart.destroy();
             };
+
             destroyChart('revenueChart');
             destroyChart('profitChart');
             destroyChart('employeesChart');
@@ -1122,113 +1099,26 @@
 
             new Chart(document.getElementById('revenueChart'), {
                 type: 'bar',
-                data: {
-                    labels: years,
-                    datasets: [{
-                        label: 'Выручка',
-                        data: revenue,
-                        backgroundColor: '#3e95cd',
-                        borderColor: '#1e3a8a',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                 { labels: years, datasets: [{ label: 'Выручка',  revenue, backgroundColor: '#3e95cd', borderColor: '#1e3a8a', borderWidth: 1 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
             new Chart(document.getElementById('profitChart'), {
                 type: 'line',
-                data: {
-                    labels: years,
-                    datasets: [{
-                        label: 'Прибыль',
-                        data: profit,
-                        borderColor: '#8e5ea2',
-                        backgroundColor: 'rgba(142, 94, 162, 0.1)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                 { labels: years, datasets: [{ label: 'Прибыль',  profit, borderColor: '#8e5ea2', backgroundColor: 'rgba(142, 94, 162, 0.1)', tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
             new Chart(document.getElementById('employeesChart'), {
                 type: 'bar',
-                data: {
-                    labels: years,
-                    datasets: [{
-                        label: 'Сотрудники',
-                        data: employees,
-                        backgroundColor: '#1e3a8a',
-                        borderColor: '#3e95cd',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                 { labels: years, datasets: [{ label: 'Сотрудники', data: employees, backgroundColor: '#1e3a8a', borderColor: '#3e95cd', borderWidth: 1 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
             new Chart(document.getElementById('salaryChart'), {
                 type: 'line',
-                data: {
-                    labels: years,
-                    datasets: [{
-                        label: 'Средняя зарплата',
-                        data: salary,
-                        borderColor: '#3cba9f',
-                        backgroundColor: 'rgba(60, 186, 159, 0.1)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                 { labels: years, datasets: [{ label: 'Средняя зарплата',  salary, borderColor: '#3cba9f', backgroundColor: 'rgba(60, 186, 159, 0.1)', tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
         }
+
         // Add Data functionality
         const userOrganization = document.getElementById('userOrganization');
         const editOrgBtn = document.getElementById('editOrgBtn');
@@ -1238,10 +1128,10 @@
         const processTextBtn = document.getElementById('processTextBtn');
         const rawTextData = document.getElementById('rawTextData');
         const fileInput = document.getElementById('fileInput');
-        const fileInfo = document.getElementById('fileInfo');
         const uploadBtn = document.getElementById('uploadBtn');
         const processLoading = document.getElementById('processLoading');
         const processedResult = document.getElementById('processedResult');
+
         editOrgBtn.addEventListener('click', () => {
             const orgId = userOrganization.value;
             if (!orgId) {
@@ -1250,45 +1140,16 @@
             }
             loadOrganizationForEdit(orgId);
         });
+
         async function loadOrganizationForEdit(orgId) {
             try {
                 const response = await fetch(`/api/organization/${orgId}`);
                 if (response.ok) {
                     const org = await response.json();
-                    document.getElementById('edit_inn').value = org.inn || '';
-                    document.getElementById('edit_short_name').value = org.short_name || '';
-                    document.getElementById('edit_full_name').value = org.full_name || '';
-                    document.getElementById('edit_status').value = org.status || '';
-                    document.getElementById('edit_legal_address').value = org.legal_address || '';
-                    document.getElementById('edit_production_address').value = org.production_address || '';
-                    document.getElementById('edit_additional_address').value = org.additional_address || '';
-                    document.getElementById('edit_main_industry').value = org.main_industry || '';
-                    document.getElementById('edit_sub_industry').value = org.sub_industry || '';
-                    document.getElementById('edit_main_okved').value = org.main_okved || '';
-                    document.getElementById('edit_okved_activity').value = org.okved_activity || '';
-                    document.getElementById('edit_production_okved').value = org.production_okved || '';
-                    document.getElementById('edit_registration_date').value = org.registration_date || '';
-                    document.getElementById('edit_director').value = org.director || '';
-                    document.getElementById('edit_parent_company').value = org.parent_company || '';
-                    document.getElementById('edit_parent_inn').value = org.parent_inn || '';
-                    document.getElementById('edit_contact_management').value = org.contact_management || '';
-                    document.getElementById('edit_contact_employee').value = org.contact_employee || '';
-                    document.getElementById('edit_contact_emergency').value = org.contact_emergency || '';
-                    document.getElementById('edit_website').value = org.website || '';
-                    document.getElementById('edit_email').value = org.email || '';
-                    document.getElementById('edit_support_measures').value = org.support_measures || '';
-                    document.getElementById('edit_special_status').value = org.special_status || '';
-                    document.getElementById('edit_sme_status').value = org.sme_status || '';
-                    document.getElementById('edit_export_available').value = org.export_available || 'Нет';
-                    document.getElementById('edit_export_countries').value = org.export_countries || '';
-                    document.getElementById('edit_coordinates_legal').value = org.coordinates_legal || '';
-                    document.getElementById('edit_coordinates_production').value = org.coordinates_production || '';
-                    document.getElementById('edit_coordinates_additional').value = org.coordinates_additional || '';
-                    document.getElementById('edit_latitude').value = org.latitude || '';
-                    document.getElementById('edit_longitude').value = org.longitude || '';
-                    document.getElementById('edit_okrug').value = org.okrug || '';
-                    document.getElementById('edit_raion').value = org.raion || '';
-
+                    for (const [key, value] of Object.entries(org)) {
+                        const el = document.getElementById(`edit_${key}`);
+                        if (el) el.value = value || '';
+                    }
                     editForm.classList.add('show');
                 } else {
                     throw new Error('Не удалось загрузить данные организации для редактирования');
@@ -1298,38 +1159,29 @@
                 alert('Ошибка при загрузке данных: ' + error.message);
             }
         }
-        cancelEditBtn.addEventListener('click', () => {
-            editForm.classList.remove('show');
-        });
+
+        cancelEditBtn.addEventListener('click', () => editForm.classList.remove('show'));
+
         organizationEditForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const orgId = userOrganization.value;
             if (!orgId) {
-                 alert('Не выбрана организация для сохранения');
-                 return;
+                alert('Не выбрана организация для сохранения');
+                return;
             }
-
             const formData = new FormData(organizationEditForm);
             const dataToSave = {};
-            for (let [key, value] of formData.entries()) {
-                dataToSave[key] = value;
-            }
+            for (let [key, value] of formData.entries()) dataToSave[key] = value;
             dataToSave.user_id = currentUser.id;
 
             try {
                 const response = await fetch(`/api/organization/${orgId}`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dataToSave)
                 });
                 if (response.ok) {
-                    document.getElementById('processedResult').innerHTML = `
-                        <div class="success-message">
-                            ✅ Данные организации успешно обновлены!
-                        </div>
-                    `;
+                    document.getElementById('processedResult').innerHTML = `<div class="success-message">✅ Данные организации успешно обновлены!</div>`;
                     loadUserOrganizations();
                     editForm.classList.remove('show');
                 } else {
@@ -1338,13 +1190,10 @@
                 }
             } catch (error) {
                 console.error('Ошибка при сохранении:', error);
-                document.getElementById('processedResult').innerHTML = `
-                    <div class="error-message">
-                        ❌ Ошибка сохранения: ${error.message}
-                    </div>
-                `;
+                document.getElementById('processedResult').innerHTML = `<div class="error-message">❌ Ошибка сохранения: ${error.message}</div>`;
             }
         });
+
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             const fileNameSpan = document.getElementById('fileName');
@@ -1354,6 +1203,7 @@
                 fileNameSpan.innerHTML = '';
             }
         });
+
         processTextBtn.addEventListener('click', () => {
             const text = rawTextData.value.trim();
             if (!text) {
@@ -1362,6 +1212,7 @@
             }
             processData(text, 'text');
         });
+
         uploadBtn.addEventListener('click', () => {
             const file = fileInput.files[0];
             if (!file) {
@@ -1370,15 +1221,14 @@
             }
             processFile(file);
         });
+
         async function processData(content, type) {
             processLoading.classList.add('show');
             processedResult.innerHTML = '';
             try {
                 const response = await fetch('/api/parse', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ raw_text: content })
                 });
                 const data = await response.json();
@@ -1401,6 +1251,7 @@
                 processLoading.classList.remove('show');
             }
         }
+
         async function processFile(file) {
             const fileName = file.name.toLowerCase();
             processLoading.classList.add('show');
@@ -1409,13 +1260,10 @@
                 if (fileName.endsWith('.pdf')) {
                     const formData = new FormData();
                     formData.append('file', file);
-                    const response = await fetch('/api/parse/pdf', {
-                        method: 'POST',
-                        body: formData
-                    });
+                    const response = await fetch('/api/parse/pdf', { method: 'POST', body: formData });
                     const data = await response.json();
                     if (response.ok) {
-                         const html = `
+                        const html = `
                             <div class="processed-data">
                                 <h3>Результат обработки PDF:</h3>
                                 <pre>${JSON.stringify(data, null, 2)}</pre>
@@ -1437,9 +1285,7 @@
                             const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                             let extractedText = 'Данные из Excel:\n';
                             jsonData.forEach((row, index) => {
-                                if (row.length > 0) {
-                                    extractedText += row.join(' | ') + '\n';
-                                }
+                                if (row.length > 0) extractedText += row.join(' | ') + '\n';
                             });
                             await processData(extractedText, 'file');
                         } catch (readError) {
@@ -1460,6 +1306,7 @@
                 processLoading.classList.remove('show');
             }
         }
+
         async function saveParsedDataToDatabase(parsedData) {
             if (!parsedData || typeof parsedData !== 'object') {
                 alert('Неверный формат данных для сохранения');
@@ -1468,37 +1315,30 @@
             const saveData = {
                 user_id: currentUser.id,
                 inn: parsedData.inn || parsedData.INN || '',
-                short_name: parsedData.short_name || parsedData.shortName || parsedData.name || parsedData.Name || '',
-                full_name: parsedData.full_name || parsedData.fullName || parsedData.name || parsedData.Name || '',
+                short_name: parsedData.short_name || parsedData.shortName || parsedData.name || '',
+                full_name: parsedData.full_name || parsedData.fullName || parsedData.name || '',
                 status: parsedData.status || parsedData.Status || '',
-                legal_address: parsedData.legal_address || parsedData.legalAddress || parsedData.address || parsedData.Address || '',
+                legal_address: parsedData.legal_address || parsedData.legalAddress || parsedData.address || '',
                 production_address: parsedData.production_address || parsedData.productionAddress || '',
-                main_industry: parsedData.main_industry || parsedData.mainIndustry || parsedData.industry || parsedData.Industry || '',
+                main_industry: parsedData.main_industry || parsedData.mainIndustry || parsedData.industry || '',
                 sub_industry: parsedData.sub_industry || parsedData.subIndustry || '',
-                main_okved: parsedData.main_okved || parsedData.mainOkved || parsedData.okved || parsedData.OKVED || '',
-                registration_date: parsedData.registration_date || parsedData.registrationDate || parsedData.date || parsedData.Date || '',
-                director: parsedData.director || parsedData.Director || parsedData.director_name || parsedData.directorName || '',
-                okrug: parsedData.okrug || parsedData.okrug || '',
-                raion: parsedData.raion || parsedData.raion || '',
+                main_okved: parsedData.main_okved || parsedData.mainOkved || parsedData.okved || '',
+                registration_date: parsedData.registration_date || parsedData.registrationDate || parsedData.date || '',
+                director: parsedData.director || parsedData.Director || parsedData.director_name || '',
+                okrug: parsedData.okrug || '',
+                raion: parsedData.raion || '',
                 financial_data: Array.isArray(parsedData.financial_data) ? parsedData.financial_data : [],
-                personnel_data: Array.isArray(parsedData.personnel_data) ? parsedData.personnel_data : []
+                personnel_ Array.isArray(parsedData.personnel_data) ? parsedData.personnel_data : []
             };
-
             try {
                 const response = await fetch('/api/save', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(saveData)
                 });
                 const result = await response.json();
                 if (response.ok) {
-                    processedResult.innerHTML += `
-                        <div class="success-message">
-                            ✅ Данные успешно сохранены в базе данных! ID новой организации: ${result.organization_id}
-                        </div>
-                    `;
+                    processedResult.innerHTML += `<div class="success-message">✅ Данные успешно сохранены в базе данных! ID новой организации: ${result.organization_id}</div>`;
                     loadUserOrganizations();
                 } else {
                     throw new Error(result.error || `Ошибка ${response.status}`);
@@ -1508,11 +1348,13 @@
                 processedResult.innerHTML += `<div class="error-message">❌ Ошибка сохранения в БД: ${error.message}</div>`;
             }
         }
+
         // Reports functionality
         const industrySelect = document.getElementById('industrySelect');
         const generateReportBtn = document.getElementById('generateReportBtn');
         const exportPdfBtn = document.getElementById('exportPdfBtn');
         const industryReport = document.getElementById('industryReport');
+
         generateReportBtn.addEventListener('click', () => {
             const industry = industrySelect.value;
             if (!industry) {
@@ -1520,8 +1362,9 @@
                 return;
             }
             currentIndustry = industry;
-            (industry);
+            generateIndustryReport(industry);
         });
+
         exportPdfBtn.addEventListener('click', () => {
             if (!currentIndustry) {
                 alert('Сначала сгенерируйте отчет');
@@ -1529,6 +1372,7 @@
             }
             exportReportToPDF(currentIndustry);
         });
+
         function generateIndustryReport(industry) {
             const industryData = {
                 chemical: {
@@ -1630,31 +1474,28 @@
                 </div>
             `;
             industryReport.innerHTML = html;
-            setTimeout(() => {
-                createIndustryCharts(data);
-            }, 100);
+            setTimeout(() => createIndustryCharts(data), 100);
         }
+
         function createIndustryCharts(data) {
             const destroyChart = (canvasId) => {
                 const existingChart = Chart.getChart(canvasId);
-                if (existingChart) {
-                    existingChart.destroy();
-                }
+                if (existingChart) existingChart.destroy();
             };
-        
+
             destroyChart('industryPieChart');
             destroyChart('industryEmployeesChart');
             destroyChart('industryTrendChart');
-        
+
             const colors = ['#1FB8CD', '#FFC185', '#B4413C', '#ECEBD5', '#5D878F'];
-        
-            // Pie Chart - Revenue Distribution
+
+            // Pie Chart
             new Chart(document.getElementById('industryPieChart'), {
                 type: 'pie',
-                data: {
+                 {
                     labels: data.organizations.map(org => org.name),
                     datasets: [{
-                        data: data.organizations.map(org => org.revenue),
+                         data.organizations.map(org => org.revenue),
                         backgroundColor: colors.slice(0, data.organizations.length),
                         borderWidth: 2,
                         borderColor: '#fff'
@@ -1664,21 +1505,19 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
+                        legend: { position: 'bottom' }
                     }
                 }
             });
-        
-            // Bar Chart - Employees
+
+            // Bar Chart
             new Chart(document.getElementById('industryEmployeesChart'), {
                 type: 'bar',
-                data: {
+                 {
                     labels: data.organizations.map(org => org.name),
                     datasets: [{
                         label: 'Сотрудники',
-                        data: data.organizations.map(org => org.employees),
+                         data.organizations.map(org => org.employees),
                         backgroundColor: '#3e95cd',
                         borderColor: '#1e3a8a',
                         borderWidth: 1
@@ -1687,19 +1526,15 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
                         y: { beginAtZero: true },
                         x: { ticks: { maxRotation: 45 } }
                     }
                 }
             });
-        
-            // Line Chart - Revenue Trend
+
+            // Line Chart
             const years = [2020, 2021, 2022, 2023, 2024];
             const trendData = [
                 data.total_revenue * 0.7,
@@ -1710,11 +1545,11 @@
             ];
             new Chart(document.getElementById('industryTrendChart'), {
                 type: 'line',
-                data: {
+                 {
                     labels: years,
                     datasets: [{
                         label: 'Выручка отрасли (млн руб.)',
-                        data: trendData,
+                         trendData,
                         borderColor: '#8e5ea2',
                         backgroundColor: 'rgba(142, 94, 162, 0.1)',
                         tension: 0.4,
@@ -1724,48 +1559,19 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
                         y: { beginAtZero: true }
                     }
                 }
             });
         }
+
         function exportReportToPDF(industry) {
             const industryData = {
-                chemical: {
-                    name: "Химическая промышленность",
-                    count: 15,
-                    total_revenue: 8500,
-                    avg_employees: 125,
-                    organizations: [
-                        { name: 'АО "СВОБОДА"', inn: "7714431171", address: "ул. Вятская, д. 47", revenue: 750, employees: 150 },
-                        { name: 'ООО "Химпром"', inn: "7714123456", address: "ул. Ленина, д. 25", revenue: 1200, employees: 180 },
-                        { name: 'ЗАО "Синтез"', inn: "7714789012", address: "пр-т Мира, д. 15", revenue: 890, employees: 95 }
-                    ]
-                },
-                machine: {
-                    name: "Машиностроение",
-                    count: 32,
-                    total_revenue: 15200,
-                    avg_employees: 280,
-                    organizations: [
-                        { name: 'ОАО "Машиностроитель"', inn: "7715123456", address: "ул. Промышленная, д. 10", revenue: 2500, employees: 320 },
-                        { name: 'ООО "Техника"', inn: "7715789012", address: "ш. Энтузиастов, д. 45", revenue: 1800, employees: 250 }
-                    ]
-                },
-                food: {
-                    name: "Пищевая промышленность",
-                    count: 48,
-                    total_revenue: 9800,
-                    avg_employees: 95,
-                    organizations: [
-                        { name: 'ООО "Хлебопек"', inn: "7716123456", address: "ул. Хлебная, д. 8", revenue: 650, employees: 85 },
-                        { name: 'ЗАО "Молпродукт"', inn: "7716789012", address: "ул. Молочная, д. 12", revenue: 980, employees: 120 }
-                    ]
-                }
+                chemical: { name: "Химическая промышленность", count: 15, total_revenue: 8500, avg_employees: 125, organizations: [...] },
+                machine: { name: "Машиностроение", count: 32, total_revenue: 15200, avg_employees: 280, organizations: [...] },
+                food: { name: "Пищевая промышленность", count: 48, total_revenue: 9800, avg_employees: 95, organizations: [...] }
             };
             const data = industryData[industry];
             if (!data) {
@@ -1796,17 +1602,12 @@
                 head: [['Название', 'ИНН', 'Адрес', 'Выручка 2024', 'Численность']],
                 body: tableData,
                 theme: 'grid',
-                styles: {
-                    fontSize: 8,
-                    cellPadding: 3
-                },
-                headStyles: {
-                    fillColor: [30, 58, 138],
-                    textColor: 255
-                }
+                styles: { fontSize: 8, cellPadding: 3 },
+                headStyles: { fillColor: [30, 58, 138], textColor: 255 }
             });
             doc.save(`отчет_${data.name}_${new Date().toISOString().split('T')[0]}.pdf`);
         }
+
         // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('username').value = 'admin';
