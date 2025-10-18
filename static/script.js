@@ -33,3 +33,31 @@ function saveData() {
 function downloadPDF() {
   // создание отчета и скачивание
 }
+async function saveFromFNS(org) {
+    const data = {
+        inn: org.ИНН || org.inn,
+        short_name: org.НаимСокрЮЛ || org.short_name,
+        full_name: org.НаимПолнЮЛ || org.full_name,
+        status: org.Статус || 'Действующая',
+        legal_address: org.АдресПолн || org.legal_address,
+        main_okved: org.ОснВидДеят || org.main_okved,
+        user_id: currentUser ? currentUser.id : 1
+    };
+    
+    if (!confirm(`Сохранить "${data.short_name}"?`)) return;
+    
+    try {
+        const res = await fetch('/api/save', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        const result = await res.json();
+        alert(result.status === 'success' ? 
+              `✅ Сохранено! ID: ${result.organization_id}` : 
+              `❌ Ошибка: ${result.error}`);
+    } catch (e) {
+        alert(`❌ ${e.message}`);
+    }
+}
