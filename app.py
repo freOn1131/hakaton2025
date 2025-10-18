@@ -6,8 +6,8 @@ import json
 app = Flask(__name__)
 
 # Исправлена URL-адрес API FNS: убрана лишняя строка и пробелы
-SEARCH_API_URL = "https://api-fns.ru/api/search"
-FNS_API_KEY = "30f98ca92ed94f3774fde7930d237775639fd7b5"
+FNS_API_URL = "https://api-fns.ru/api/search"
+FNS_API_KEY = "c35fe9f432d553652e59bb7edfdcb4137f64cfe0"
 LLM_API_URL = "http://10.250.12.109:8080/api/chat/completions"
 LLM_API_KEY = "sk-8c3828c838c94a6ab0c04d0deee2f799"
 
@@ -113,49 +113,15 @@ def api_parse():
     except Exception as e:
         return jsonify({'error': f'LLM parsing error: {e}'}), 500
 
-import requests
-from flask import Flask, jsonify
-
-app = Flask(__name__)
-
-# Конфигурация
-FNS_API_URL = "https://api-fns.ru/api/search"
-FNS_API_KEY = "c35fe9f432d553652e59bb7edfdcb4137f64cfe0"
-
 @app.route('/api/fns/search/<inn>', methods=['GET'])
 def search_fns(inn):
-    # Валидация ИНН (опционально, но рекомендуется)
-    if not inn.isdigit():
-        return jsonify({'error': 'ИНН должен содержать только цифры'}), 400
-
-    params = {
-        'q': inn,
-        'key': FNS_API_KEY
-    }
-
+    params = {'q': inn, 'key': FNS_API_KEY}
     try:
-        response = requests.get(FNS_API_URL, params=params, timeout=10)
-        
-        # Если сервер вернул пустой ответ или не JSON
-        if not response.text.strip():
-            return jsonify({'error': 'Пустой ответ от API ФНС'}), 502
-
-        response.raise_for_status()
-        data = response.json()
-        return jsonify(data)
-
-    except requests.exceptions.Timeout:
-        return jsonify({'error': 'Таймаут при обращении к API ФНС'}), 504
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': f'Ошибка сети: {str(e)}'}), 502
-    except ValueError:
-        # JSON decode error
-        return jsonify({
-            'error': 'Некорректный ответ от API ФНС (не JSON)',
-            'raw_response': response.text[:500]  # для отладки
-        }), 502
+        resp = requests.get(FNS_API_URL, params=params)
+        resp.raise_for_status()
+        return jsonify(resp.json())
     except Exception as e:
-        return jsonify({'error': f'Неизвестная ошибка: {str(e)}'}), 500
+        return jsonify({'error': f'FNS API error: {e}'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8188, debug=False)
