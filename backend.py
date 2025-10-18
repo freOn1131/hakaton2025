@@ -1,101 +1,132 @@
-from flask import Flask, request, jsonify, send_from_directory
+# backend.py
 import sqlite3
+from flask import Flask, request, jsonify
 import requests
 import json
+import threading
 from datetime import datetime
 
 app = Flask(__name__)
 
-# Параметры API и БД
+# Конфигурация API
 FNS_API_URL = "https://api-fns.ru/api/search"
 FNS_API_KEY = "c35fe9f432d553652e59bb7edfdcb4137f64cfe0"
 LLM_API_URL = "http://10.250.12.109:8080/api/chat/completions"
 LLM_API_KEY = "sk-8c3828c838c94a6ab0c04d0deee2f799"
-LLM_MODEL = "gemma3:27b"
-DB_PATH = "organizations.db"
 
-def get_db_connection():
-    conn = sqlite3.connect(DB_PATH)
+# подключение к базе
+def get_db():
+    conn = sqlite3.connect('organizations.db')
     conn.row_factory = sqlite3.Row
     return conn
 
-def chat_completion(content, model=LLM_MODEL, temperature=0.7):
-    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {LLM_API_KEY}"}
-    payload = {
-        "model": model,
-        "messages": [{"role": "user", "content": content}],
-        "temperature": temperature,
-        "stream": False
-    }
-    resp = requests.post(LLM_API_URL, headers=headers, json=payload, timeout=60)
-    resp.raise_for_status()
-    return resp.json()
+# Инициализация базы (при старте)
+def init_db():
+    conn = get_db()
+    cursor = conn.cursor()
+    # Создания таблиц (если не существует)
+    cursor.executescript('''
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS organizations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        inn TEXT UNIQUE,
+        short_name TEXT,
+        full_name TEXT,
+        status TEXT,
+        legal_address TEXT,
+        production_address TEXT,
+        main_industry TEXT,
+        sub_industry TEXT,
+        main_okved TEXT,
+        registration_date TEXT,
+        director TEXT,
+        okrug TEXT,
+        raion TEXT
+    );
+    ''')
+    # Админ по умолчанию
+    cursor.execute('INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)', ('admin', 'admin'))
+    conn.commit()
+    conn.close()
 
-@app.route('/api/parse_data', methods=['POST'])
-def parse_data():
+init_db()
+
+# API для входа
+@app.route('/api/auth/login', methods=['POST'])
+def login():
     data = request.json
-    raw_data = data.get('raw_data', '')
-    if not raw_data:
-        return jsonify({"error": "Raw data is missing"}), 400
+    username = data.get('username')
+    password = data.get('password')
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM users WHERE username=? AND password=?', (username, password))
+    user = cursor.fetchone()
+    conn.close()
+    if user:
+        return jsonify({'status': 'success'})
+    else:
+        return jsonify({'status': 'fail'}), 401
 
-    with open('llm_prompt_template.txt', 'r', encoding='utf-8') as f:
-        prompt_template = f.read()
+# API для получения данных организации
+@app.route('/api/organization/<int:org_id>', methods=['GET'])
+def get_organization(org_id):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM organizations WHERE id=?', (org_id,))
+    org = cursor.fetchone()
+    conn.close()
+    if org:
+        return jsonify(dict(org))
+    return jsonify({'error': 'Not found'}), 404
 
-    prompt = prompt_template.replace("{input_data}", raw_data)
-    try:
-        llm_response = chat_completion(prompt, temperature=0.3)
-        content = llm_response['choices'][0]['message']['content']
+# API для парсинга данных через нейросеть
+def parse_data(text):
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {LLM_API_KEY}"
+    }
+    prompt = """""" + """
+    {prompt_template}
+    """ + """"""
+    )
+    payload = {
+        "model": "gemma3:27b",
+        "messages": [{"role": "user", "content": prompt.format(input_data=text)}],
+        "temperature": 0.3
+    }
+    response = requests.post(LLM_API_URL, headers=headers, json=payload, timeout=60)
+    if response.status_code == 200:
+        result = response.json()
+        try:
+            json_text = result['choices'][0]['message']['content']
+            # extract JSON part
+            json_part = json_text.strip()
+            return json.loads(json_part)
+        except:
+            return None
+    return None
 
-        # Очистка ответа от markdown кода JSON
-        if '```
-            start = content.find('```json') + 7
-            end = content.find('```
-            content = content[start:end]
-        elif '```' in content:
-            start = content.find('```
-            end = content.find('```', start)
-            content = content[start:end]
+@app.route('/api/parse', methods=['POST'])
+def api_parse():
+    data = request.json
+    raw_text = data.get('raw_text')
+    parsed = parse_data(raw_text)
+    if parsed:
+        return jsonify(parsed)
+    else:
+        return jsonify({'error': 'Parsing failed'}), 400
 
-        parsed_json = json.loads(content.strip())
-        return jsonify(parsed_json)
-    except Exception as e:
-        return jsonify({"error": f"Failed to parse data: {str(e)}"}), 500
+# API для поиска по ФНС
+@app.route('/api/fns/search/<inn>', methods=['GET'])
+def search_fns(inn):
+    params = {'q': inn, 'key': FNS_API_KEY}
+    resp = requests.get(FNS_API_URL, params=params)
+    return jsonify(resp.json())
 
-@app.route('/api/fns/search/inn/<inn>', methods=['GET'])
-def fns_search_inn(inn):
-    params = {"q": inn, "key": FNS_API_KEY}
-    try:
-        resp = requests.get(FNS_API_URL, params=params, timeout=30)
-        resp.raise_for_status()
-        data = resp.json()
-        if data and 'items' in data and len(data['items']) > 0:
-            return jsonify(data['items'][0])
-        return jsonify({})
-    except Exception as e:
-        return jsonify({"error": f"FNS API error: {str(e)}"}), 500
-
-@app.route('/api/fns/search/name', methods=['GET'])
-def fns_search_name():
-    name = request.args.get('name', '')
-    if not name:
-        return jsonify({"error": "Name parameter required"}), 400
-    params = {"q": name, "key": FNS_API_KEY}
-    try:
-        resp = requests.get(FNS_API_URL, params=params, timeout=30)
-        resp.raise_for_status()
-        data = resp.json()
-        return jsonify(data.get('items', []))
-    except Exception as e:
-        return jsonify({"error": f"FNS API error: {str(e)}"}), 500
-
-# Serving frontend files
-@app.route('/')
-def serve_index():
-    return send_from_directory('frontend', 'index.html')
-
-@app.route('/<path:path>')
-def serve_static(path):
-    return send_from_directory('frontend', path)
-
+# Запуск сервера
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)
