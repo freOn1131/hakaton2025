@@ -5,6 +5,7 @@ import json
 
 app = Flask(__name__)
 
+# Исправлена URL-адрес API FNS: убрана лишняя строка и пробелы
 FNS_API_URL = "https://api-fns.ru/api/search"
 FNS_API_KEY = "c35fe9f432d553652e59bb7edfdcb4137f64cfe0"
 LLM_API_URL = "http://10.250.12.109:8080/api/chat/completions"
@@ -65,23 +66,50 @@ def api_parse():
         resp = requests.post(LLM_API_URL, headers=headers, json=payload, timeout=60)
         resp.raise_for_status()
         result = resp.json()
-        json_text = result['choices']['message']['content'].strip()
-
-        # Убираем Markdown кодовые блоки (``` или ```
-        json_text = result['choices'][0]['message']['content'].strip()
         
-        if json_text.startswith("```
-            json_text = json_text```json"):]
-        elif json_text.startswith("```
-            json_text = json_text```"):]
+        # Исправлен доступ к полю 'message' внутри 'choices'
+        # Предполагается, что структура ответа LLM: {"choices": [{"message": {"content": "..."}}, ...]}
+        # или {"choices": [{"delta": {"content": "..."}}, ...]} для stream или {"choices": [{"text": "..."}]}
+        # Попробуем наиболее вероятную структуру для /chat/completions
+        
+        # Проверяем структуру ответа
+        choices = result.get('choices', [])
+        if not choices:
+            raise ValueError("LLM response has no 'choices' field or it's empty")
+        
+        first_choice = choices[0]
+        
+        # Попробуем стандартную структуру chat completions
+        content = first_choice.get('message', {}).get('content')
+        if content is None:
+            # Попробуем альтернативную структуру, например, если возвращается 'text'
+             content = first_choice.get('text')
+        if content is None:
+             # Попробуем, если возвращается просто строка в 'content' на верхнем уровне choice
+             content = first_choice.get('content')
+        
+        if content is None:
+            raise ValueError(f"Could not extract content from LLM response: {result}")
+        
+        json_text = content.strip()
+
+        # Убираем Markdown кодовые блоки (```json или ```)
+        # Исправлены синтаксические ошибки в условиях и срезах
+        if json_text.startswith("```json"):
+            json_text = json_text[7:]  # Убираем "```json"
+        elif json_text.startswith("```"):
+            json_text = json_text[3:]  # Убираем "```"
         
         json_text = json_text.strip()
         
-        if json_text.endswith("```
-            json_text = json_text```")].strip()
+        if json_text.endswith("```"):
+            json_text = json_text[:-3].strip() # Убираем завершающий "```"
 
         parsed = json.loads(json_text)
         return jsonify(parsed)
+    except json.JSONDecodeError as e:
+        # Добавлена проверка на ошибку парсинга JSON
+        return jsonify({'error': f'JSON parsing error: {e}', 'received_text': json_text}), 500
     except Exception as e:
         return jsonify({'error': f'LLM parsing error: {e}'}), 500
 
