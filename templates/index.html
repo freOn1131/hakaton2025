@@ -888,65 +888,6 @@
                 dbSearchResults.innerHTML = `<p class="error-message">❌ Ошибка поиска в БД: ${error.message}</p>`;
             }
         }
-        // Функция для добавления организации из API в базу данных
-        async function addOrgToDatabaseFromAPI(apiOrgData) {
-            if (!apiOrgData || !apiOrgData.ЮЛ) {
-                alert('Неверный формат данных для сохранения из API');
-                return;
-            }
-
-            const apiData = apiOrgData.ЮЛ;
-
-            // Подготовим данные для отправки в формате, который ожидает `/api/save`
-            // Сопоставляем поля из ответа API ФНС с полями в базе данных
-            const saveData = {
-                user_id: currentUser.id, // Убедитесь, что currentUser.id доступен
-                inn: apiData.ИНН || '',
-                short_name: apiData.НаимСокрЮЛ || '',
-                full_name: apiData.НаимПолнЮЛ || '',
-                status: apiData.Статус || '',
-                legal_address: apiData.АдресПолн || '',
-                // production_address: apiData. ? // API ФНС может не возвращать отдельно производственный адрес
-                // main_industry: apiData.ОснВидДеят || '', // Можно использовать ОснВидДеят как основную отрасль
-                main_industry: '', // Пока оставим пустым, если не требуется автоматически
-                // sub_industry: '',
-                main_okved: '', // API ФНС может возвращать ОКВЭД, но не всегда в этом поле
-                registration_date: apiData.ДатаОГРН || '', // Используем ДатаОГРН как дату регистрации
-                director: '', // API ФНС может не возвращать ФИО директора напрямую в этом ответе
-                // okrug: '',
-                // raion: '',
-                // financial_data: [], // API не возвращает финансовую информацию
-                // personnel_data: []  // API не возвращает информацию о персонале
-            };
-
-            try {
-                const response = await fetch('/api/save', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(saveData)
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    // Показываем сообщение об успехе в области результатов поиска
-                    document.getElementById('searchResults').innerHTML += `
-                        <div class="success-message">
-                            ✅ Организация "${saveData.short_name}" успешно добавлена в базу данных! ID: ${result.organization_id}
-                        </div>
-                    `;
-                    // Обновляем список организаций пользователя
-                    await loadUserOrganizations();
-                } else {
-                    throw new Error(result.error || `Ошибка ${response.status}`);
-                }
-            } catch (error) {
-                console.error('Ошибка при сохранении из API в БД:', error);
-                // Показываем сообщение об ошибке в области результатов поиска
-                document.getElementById('searchResults').innerHTML += `<div class="error-message">❌ Ошибка сохранения из API в БД: ${error.message}</div>`;
-            }
-        }
-
         function displayAPIResults(results, provider) {
             searchLoading.classList.remove('show');
             if (results.length === 0) {
@@ -956,21 +897,19 @@
             // ВАЖНО: Предполагается, что 'results' уже является массивом из 'items'
             // и каждый элемент имеет структуру { "ЮЛ": { ... } }
             const html = results.map(org => `
-                <div class="organization-card">
+                <div class="organization-card" onclick="showOrganizationDetailsFromAPI('${org.ЮЛ.ИНН}', arguments[0])">
                     <h3>${org.ЮЛ.НаимСокрЮЛ || org.ЮЛ.НаимПолнЮЛ}</h3>
                     <p><strong>ИНН:</strong> ${org.ЮЛ.ИНН}</p>
                     <p><strong>Адрес:</strong> ${org.ЮЛ.АдресПолн || 'Не указан'}</p>
                     <p><strong>Статус:</strong> ${org.ЮЛ.Статус || 'Не указан'}</p>
+                    <!-- Внимание: API ФНС может не возвращать ФИО директора в поле 'Руководитель' внутри 'ЮЛ' напрямую в этом ответе -->
                     <p><strong>Директор:</strong> ${org.ЮЛ.Руководитель || 'Не указан в этом ответе API'}</p>
                     <p><strong>Основной вид деят.:</strong> ${org.ЮЛ.ОснВидДеят || 'Не указан'}</p>
                     <p style="color: #1e3a8a; font-size: 12px;">Источник: ${provider.toUpperCase()}</p>
-                    <button class="btn btn-success" onclick="addOrgToDatabaseFromAPI(${JSON.stringify(org).replace(/"/g, '&quot;')})">Добавить в базу данных</button>
-                    <button class="btn" onclick="showOrganizationDetailsFromAPI('${org.ЮЛ.ИНН}', arguments[0])">Показать детали</button>
                 </div>
             `).join('');
             searchResults.innerHTML = `<h3>✅ Результаты API поиска (${results.length}):</h3>${html}`;
         }
-
         function displayDatabaseResults(results) {
             if (results.length === 0) {
                 dbSearchResults.innerHTML = '<p>❌ Организации не найдены в базе данных</p>';
@@ -1183,11 +1122,11 @@
 
             new Chart(document.getElementById('revenueChart'), {
                 type: 'bar',
-                 {
+                data: {
                     labels: years,
                     datasets: [{
                         label: 'Выручка',
-                         revenue,
+                        data: revenue,
                         backgroundColor: '#3e95cd',
                         borderColor: '#1e3a8a',
                         borderWidth: 1
@@ -1214,7 +1153,7 @@
                     labels: years,
                     datasets: [{
                         label: 'Прибыль',
-                         profit,
+                        data: profit,
                         borderColor: '#8e5ea2',
                         backgroundColor: 'rgba(142, 94, 162, 0.1)',
                         tension: 0.4
@@ -1237,11 +1176,11 @@
             });
             new Chart(document.getElementById('employeesChart'), {
                 type: 'bar',
-                 {
+                data: {
                     labels: years,
                     datasets: [{
                         label: 'Сотрудники',
-                         employees,
+                        data: employees,
                         backgroundColor: '#1e3a8a',
                         borderColor: '#3e95cd',
                         borderWidth: 1
@@ -1264,11 +1203,11 @@
             });
             new Chart(document.getElementById('salaryChart'), {
                 type: 'line',
-                 {
+                data: {
                     labels: years,
                     datasets: [{
                         label: 'Средняя зарплата',
-                         salary,
+                        data: salary,
                         borderColor: '#3cba9f',
                         backgroundColor: 'rgba(60, 186, 159, 0.1)',
                         tension: 0.4
@@ -1541,7 +1480,7 @@
                 director: parsedData.director || parsedData.Director || parsedData.director_name || parsedData.directorName || '',
                 okrug: parsedData.okrug || parsedData.okrug || '',
                 raion: parsedData.raion || parsedData.raion || '',
-                financial_ Array.isArray(parsedData.financial_data) ? parsedData.financial_data : [],
+                financial_data: Array.isArray(parsedData.financial_data) ? parsedData.financial_data : [],
                 personnel_data: Array.isArray(parsedData.personnel_data) ? parsedData.personnel_data : []
             };
 
