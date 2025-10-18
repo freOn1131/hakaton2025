@@ -894,15 +894,18 @@
                 searchResults.innerHTML = '<p>❌ Организации не найдены в API</p>';
                 return;
             }
+            // ВАЖНО: Предполагается, что 'results' уже является массивом из 'items'
+            // и каждый элемент имеет структуру { "ЮЛ": { ... } }
             const html = results.map(org => `
-                <div class="organization-card" onclick="showOrganizationDetailsFromAPI('${org.inn}', arguments[0])">
-                    <h3>${org.short_name || org.full_name}</h3>
-                    <p><strong>ИНН:</strong> ${org.inn}</p>
-                    <p><strong>Адрес:</strong> ${org.legal_address || 'Не указан'}</p>
-                    <p><strong>Статус:</strong> ${org.status || 'Не указан'}</p>
-                    <p><strong>Директор:</strong> ${org.director || 'Не указан'}</p>
-                    <p><strong>ОКВЭД:</strong> ${org.okved || 'Не указан'}</p>
-                    <p style="color: var(--primary-color); font-size: 12px;">Источник: ${provider.toUpperCase()}</p>
+                <div class="organization-card" onclick="showOrganizationDetailsFromAPI('${org.ЮЛ.ИНН}', arguments[0])">
+                    <h3>${org.ЮЛ.НаимСокрЮЛ || org.ЮЛ.НаимПолнЮЛ}</h3>
+                    <p><strong>ИНН:</strong> ${org.ЮЛ.ИНН}</p>
+                    <p><strong>Адрес:</strong> ${org.ЮЛ.АдресПолн || 'Не указан'}</p>
+                    <p><strong>Статус:</strong> ${org.ЮЛ.Статус || 'Не указан'}</p>
+                    <!-- Внимание: API ФНС может не возвращать ФИО директора в поле 'Руководитель' внутри 'ЮЛ' напрямую в этом ответе -->
+                    <p><strong>Директор:</strong> ${org.ЮЛ.Руководитель || 'Не указан в этом ответе API'}</p>
+                    <p><strong>Основной вид деят.:</strong> ${org.ЮЛ.ОснВидДеят || 'Не указан'}</p>
+                    <p style="color: #1e3a8a; font-size: 12px;">Источник: ${provider.toUpperCase()}</p>
                 </div>
             `).join('');
             searchResults.innerHTML = `<h3>✅ Результаты API поиска (${results.length}):</h3>${html}`;
