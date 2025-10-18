@@ -440,7 +440,7 @@
                 <h2>Поиск организаций</h2>
                 
                 <!-- API Search Section -->
-                <div class="search-section">
+                <div class="search-section" id="apiSearchSection">
                     <h3>Поиск через ФНС API</h3>
                     <div class="form-row">
                         <div>
@@ -453,7 +453,7 @@
                         </div>
                         <div>
                             <label>ИНН организации:</label>
-                            <input type="text" id="searchQuery" placeholder="Введите ИНН" style="padding: 10px; font-size: 16px; width: 400px;">
+                            <input type="text" id="searchQuery" placeholder="Введите ИНН (например: 7707083893)" style="padding: 10px; font-size: 16px; width: 400px;">
                         </div>
                         <div>
                             <button class="btn" id="searchBtn" style="padding: 10px 20px;">🔍 Найти в API</button>
@@ -929,6 +929,18 @@
                         registration_date: '15.03.1994',
                         okved: '20.42 - Производство парфюмерных и косметических средств'
                     }];
+                } else if (query === '7707083893') {
+                    // Сбербанк из примера API
+                    mockApiResults = [{
+                        inn: '7707083893',
+                        short_name: 'ПАО "СБЕРБАНК РОССИИ"',
+                        full_name: 'ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО "СБЕРБАНК РОССИИ"',
+                        legal_address: '117997, г Москва, ул Вавилова, д 19',
+                        status: 'Действующая',
+                        director: 'Греф Герман Оскарович',
+                        registration_date: '23.06.1997',
+                        okved: '64.19 - Прочие виды денежного посредничества'
+                    }];
                 } else {
                     // Mock API response for other INNs
                     mockApiResults = [{
@@ -990,7 +1002,7 @@
             }
 
             const html = results.map(org => `
-                <div class="organization-card" onclick="showOrganizationDetails('${org.inn}')">
+                <div class="organization-card" style="border: 1px solid #ddd; padding: 20px; margin: 15px 0; border-radius: 8px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: auto;">
                     <h3>${org.short_name || org.full_name}</h3>
                     <p><strong>ИНН:</strong> ${org.inn}</p>
                     <p><strong>Адрес:</strong> ${org.legal_address}</p>
@@ -998,6 +1010,18 @@
                     <p><strong>Директор:</strong> ${org.director}</p>
                     <p><strong>ОКВЭД:</strong> ${org.okved}</p>
                     <p style="color: #1e3a8a; font-size: 12px;">Источник: ${provider.toUpperCase()}</p>
+                    
+                    <div style="margin-top: 15px;">
+                        <button onclick='saveToDatabase(${JSON.stringify(org).replace(/'/g, "\'")})' 
+                                style="padding: 10px 20px; background: #2ecc71; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px;">
+                            💾 Сохранить в базу данных
+                        </button>
+                        
+                        <button onclick="showOrganizationDetails('${org.inn}')" 
+                                style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+                            👁️ Просмотреть детали
+                        </button>
+                    </div>
                 </div>
             `).join('');
             
@@ -1670,6 +1694,110 @@
                     }
                 }
             });
+        }
+
+        // НОВАЯ ФУНКЦИЯ: Сохранение в базу данных
+        async function saveToDatabase(orgData) {
+            if (!confirm(`Сохранить организацию "${orgData.short_name || orgData.full_name}" в базу данных?`)) {
+                return;
+            }
+            
+            // Подготавливаем данные для сохранения
+            const dataToSave = {
+                inn: orgData.inn,
+                short_name: orgData.short_name || orgData.full_name,
+                full_name: orgData.full_name || orgData.short_name,
+                status: orgData.status || 'Действующая',
+                legal_address: orgData.legal_address,
+                registration_date: orgData.registration_date,
+                director: orgData.director,
+                main_okved: orgData.okved,
+                main_industry: detectIndustry(orgData.okved),
+                user_id: currentUser ? 1 : 1
+            };
+            
+            try {
+                // Имитируем API запрос на сохранение
+                await simulateSaveAPI(dataToSave);
+                
+                // Добавляем в локальную базу данных
+                organizationData[orgData.inn] = {
+                    ...dataToSave,
+                    production_address: orgData.legal_address,
+                    additional_address: "",
+                    sub_industry: "",
+                    okved_activity: orgData.okved,
+                    production_okved: orgData.okved.split(' ')[0],
+                    parent_company: "",
+                    parent_inn: "",
+                    contact_management: "",
+                    contact_employee: "",
+                    contact_emergency: "",
+                    website: "",
+                    email: "",
+                    support_measures: "",
+                    special_status: "",
+                    sme_status: "Не определен",
+                    export_available: "Нет",
+                    export_countries: "",
+                    coordinates_legal: "",
+                    coordinates_production: "",
+                    coordinates_additional: "",
+                    latitude: 55.7558,
+                    longitude: 37.6173,
+                    okrug: "ЦАО",
+                    raion: "Пресненский",
+                    financial_data: [
+                        { year: 2022, revenue: 0, net_profit: 0 },
+                        { year: 2023, revenue: 0, net_profit: 0 },
+                        { year: 2024, revenue: 0, net_profit: 0 }
+                    ],
+                    personnel_data: [
+                        { year: 2022, total_employees: 0, avg_salary_moscow: 0 },
+                        { year: 2023, total_employees: 0, avg_salary_moscow: 0 },
+                        { year: 2024, total_employees: 0, avg_salary_moscow: 0 }
+                    ]
+                };
+                
+                alert(`✅ Организация "${dataToSave.short_name}" успешно сохранена в базу данных!`);
+                
+            } catch (error) {
+                alert(`❌ Ошибка сохранения: ${error.message}`);
+            }
+        }
+
+        // Имитация API запроса для сохранения
+        function simulateSaveAPI(data) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    if (Math.random() > 0.1) { // 90% успех
+                        resolve({ status: 'success', organization_id: Math.floor(Math.random() * 1000) + 1 });
+                    } else {
+                        reject(new Error('Ошибка соединения с базой данных'));
+                    }
+                }, 1000);
+            });
+        }
+
+        // Определение отрасли по ОКВЭД
+        function detectIndustry(okved) {
+            if (!okved) return 'Не определена';
+            
+            const okvед_lower = okved.toLowerCase();
+            
+            if (okvед_lower.includes('химич') || okvед_lower.includes('косметич') || okvед_lower.includes('20.')) {
+                return 'Химическая промышленность';
+            } else if (okvед_lower.includes('машин') || okvед_lower.includes('28.') || okvед_lower.includes('29.')) {
+                return 'Машиностроение';
+            } else if (okvед_lower.includes('пищ') || okvед_lower.includes('10.') || okvед_lower.includes('11.')) {
+                return 'Пищевая промышленность';
+            } else if (okvед_lower.includes('строит') || okvед_lower.includes('41.') || okvед_lower.includes('42.') || okvед_lower.includes('43.')) {
+                return 'Строительство';
+            } else if (okvед_lower.includes('торгов') || okvед_lower.includes('46.') || okvед_lower.includes('47.')) {
+                return 'Торговля';
+            }
+            
+            return 'Прочие виды деятельности';
         }
 
         function exportReportToPDF(industry) {
