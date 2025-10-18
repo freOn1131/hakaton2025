@@ -1621,9 +1621,114 @@
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('username').value = 'admin';
-            document.getElementById('password').value = 'admin';
+            // --- НАЧАЛО ИСПРАВЛЕНИЯ ---
+        
+            // 1. Находим все элементы формы авторизации
+            const loginPage = document.getElementById('loginPage');
+            const mainApp = document.getElementById('mainApp');
+            const loginForm = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const ecpLoginBtn = document.getElementById('ecpLogin');
+            const gosuslugiLoginBtn = document.getElementById('gosuslugiLogin');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            // Глобальная переменная для данных пользователя
+            let currentUser = null; 
+        
+            // 2. Устанавливаем значения по умолчанию для быстрого входа
+            if (usernameInput && passwordInput) {
+                usernameInput.value = 'admin';
+                passwordInput.value = 'admin';
+            }
+        
+            // 3. Добавляем обработчик на отправку формы
+            if (loginForm) {
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const username = usernameInput.value;
+                    const password = passwordInput.value;
+        
+                    if (!username || !password) {
+                        alert('Пожалуйста, введите логин и пароль.');
+                        return;
+                    }
+        
+                    try {
+                        const response = await fetch('/api/auth/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username, password })
+                        });
+        
+                        const data = await response.json();
+        
+                        if (response.ok && data.status === 'success') {
+                            currentUser = { id: data.user_id, username: username };
+                            showMainApp();
+                            // Загружаем данные пользователя после входа
+                            if (typeof loadUserOrganizations === 'function') {
+                                loadUserOrganizations();
+                            }
+                        } else {
+                            alert(data.message || 'Неверный логин или пароль');
+                        }
+                    } catch (error) {
+                        console.error('Ошибка авторизации:', error);
+                        alert('Ошибка подключения к серверу. Убедитесь, что backend запущен.');
+                    }
+                });
+            }
+        
+            // 4. Обработчики для альтернативных способов входа
+            if (ecpLoginBtn) {
+                ecpLoginBtn.addEventListener('click', () => {
+                    alert('Функция входа по ЭЦП находится в разработке.');
+                });
+            }
+            if (gosuslugiLoginBtn) {
+                gosuslugiLoginBtn.addEventListener('click', () => {
+                    alert('Функция входа через Госуслуги находится в разработке.');
+                });
+            }
+        
+            // 5. Обработчик для выхода из системы
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    currentUser = null;
+                    showLoginPage();
+                });
+            }
+        
+            // Функции для переключения между экраном входа и основным приложением
+            function showMainApp() {
+                if(loginPage) loginPage.style.display = 'none';
+                if(mainApp) mainApp.style.display = 'block';
+            }
+        
+            function showLoginPage() {
+                if(mainApp) mainApp.style.display = 'none';
+                if(loginPage) loginPage.style.display = 'flex'; // или 'block' в зависимости от верстки
+                if(usernameInput) usernameInput.value = 'admin';
+                if(passwordInput) passwordInput.value = 'admin';
+            }
+        
+            // --- КОНЕЦ ИСПРАВЛЕНИЯ ---
+        
+            // ... (здесь остается ваш остальной JavaScript код для вкладок, поиска и т.д.)
+            
+            // Пример вызова для проверки
+            // Если пользователь уже "залогинен" в сессии, можно сразу показать приложение
+            // if (currentUser) {
+            //    showMainApp();
+            // } else {
+            //    showLoginPage();
+            // }
         });
+        
+        // ... (остальной ваш код: switchTab, performAPISearch, и т.д.)
+        
+
     </script>
 </body>
 </html>
