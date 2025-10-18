@@ -68,12 +68,14 @@ def api_parse():
         json_text = result['choices']['message']['content'].strip()
 
         # Убираем Markdown кодовые блоки (``` или ```
-        if json_text.startswith('```json'):
+        json_text = result['choices']['message']['content'].strip()
+
+        if json_text[:7] == "```json":
             json_text = json_text[7:]
-        elif json_text.startswith('```
+        elif json_text[:3] == "```
             json_text = json_text[3:]
         json_text = json_text.strip()
-        if json_text.endswith('```'):
+        if json_text[-3:] == "```":
             json_text = json_text[:-3].strip()
 
         parsed = json.loads(json_text)
