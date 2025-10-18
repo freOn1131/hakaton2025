@@ -446,7 +446,7 @@
                         <div>
                             <label>Провайдер API:</label>
                             <select id="apiProvider" style="padding: 10px; font-size: 16px; width: 300px;">
-                                <option value="fns">API-ФНС</option>
+                                <option value="">API-ФНС</option>
                                 <option value="dadata">DaData</option>
                                 <option value="spark">СПАРК Интерфакс</option>
                             </select>
@@ -895,68 +895,31 @@
             }
         });
 
-        // FNS API Search (simulated with real API parameters)
         async function performAPISearch() {
             const query = searchQuery.value.trim();
             const provider = apiProvider.value;
-            
             if (!query) {
                 alert('Введите ИНН организации');
                 return;
             }
-
+            if (!/^\d+$/.test(query)) {
+                alert('ИНН должен содержать только цифры');
+                return;
+            }
             searchLoading.classList.add('show');
             searchResults.innerHTML = '';
-            
-            // Simulate FNS API call with real parameters
-            // URL: https://api-fns.ru/api/search
-            // Params: {q: query, key: "30f98ca92ed94f3774fde7930d237775639fd7b5", filter: "active"}
-            // Headers: {"User-Agent": "Mozilla/5.0 (compatible; FNS API Client)"}
-            
-            setTimeout(() => {
-                searchLoading.classList.remove('show');
-                
-                let mockApiResults = [];
-                
-                if (query === '7714431171') {
-                    mockApiResults = [{
-                        inn: '7714431171',
-                        short_name: 'АО "СВОБОДА"',
-                        full_name: 'АКЦИОНЕРНОЕ ОБЩЕСТВО "СВОБОДА"',
-                        legal_address: '127015, г. Москва, ул. Вятская, д. 47 стр. 8',
-                        status: 'Действующая',
-                        director: 'Иванова Мария Петровна',
-                        registration_date: '15.03.1994',
-                        okved: '20.42 - Производство парфюмерных и косметических средств'
-                    }];
-                } else if (query === '7707083893') {
-                    // Сбербанк из примера API
-                    mockApiResults = [{
-                        inn: '7707083893',
-                        short_name: 'ПАО "СБЕРБАНК РОССИИ"',
-                        full_name: 'ПУБЛИЧНОЕ АКЦИОНЕРНОЕ ОБЩЕСТВО "СБЕРБАНК РОССИИ"',
-                        legal_address: '117997, г Москва, ул Вавилова, д 19',
-                        status: 'Действующая',
-                        director: 'Греф Герман Оскарович',
-                        registration_date: '23.06.1997',
-                        okved: '64.19 - Прочие виды денежного посредничества'
-                    }];
+            try {
+                const response = await fetch(`/api/fns/search/${query}?provider=${provider}`);
+                const data = await response.json();
+                if (response.ok) {
+                    displayAPIResults(data.items || [], provider);
                 } else {
-                    // Mock API response for other INNs
-                    mockApiResults = [{
-                        inn: query,
-                        short_name: `ООО "Организация ${query.slice(-3)}"`,
-                        full_name: `ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ОРГАНИЗАЦИЯ ${query.slice(-3)}"`,
-                        legal_address: 'г. Москва, ул. Примерная, д. 1',
-                        status: 'Действующая',
-                        director: 'Петров Петр Петрович',
-                        registration_date: '01.01.2020',
-                        okved: 'Прочая деятельность'
-                    }];
+                    throw new Error(data.error || `Ошибка ${response.status}`);
                 }
-                
-                displayAPIResults(mockApiResults, provider);
-            }, 2000);
+            } catch (error) {
+                searchLoading.classList.remove('show');
+                searchResults.innerHTML = `<p class="error-message">❌ Ошибка поиска: ${error.message}</p>`;
+            }
         }
         
         // Database Search
