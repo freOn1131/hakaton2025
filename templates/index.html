@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Промышленный портфель Москвы</title>
+<link rel="stylesheet" href="styles.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<header>
+<h1>Промышленный портал Москвы</h1>
+<button id="logoutBtn">Выйти</button>
+</header>
+<nav>
+<button class="tablink" onclick="showTab('view')">Просмотр организаций</button>
+<button class="tablink" onclick="showTab('add')">Добавление данных</button>
+<button class="tablink" onclick="showTab('report')">Отчет по отрасли</button>
+</nav>
+<main>
+<div id="tab-view" class="tabcontent">
+<h2>Поиск организации</h2>
+<form id="searchForm">
+<input type="text" id="searchInput" placeholder="Введите ИНН или название" />
+<select id="searchType"><option value="inn">ИНН</option><option value="name">Название</option></select>
+<button type="button" onclick="searchOrganization()">Найти</button>
+</form>
+<div id="searchResults"></div>
+<div id="orgDashboard" style="display:none;">
+<h3>Дашборд организации</h3>
+<canvas id="revenueChart"></canvas>
+<canvas id="profitChart"></canvas>
+<canvas id="staffChart"></canvas>
+<canvas id="salaryChart"></canvas>
+<button onclick="downloadPDF()">Выгрузить PDF отчет</button>
+</div>
+</div>
+
+<div id="tab-add" class="tabcontent" style="display:none;">
+<h2>Добавление данных</h2>
+<textarea id="rawData" rows="10" cols="50" placeholder="Введите сырые данные"></textarea>
+<br/>
+<label for="fileUpload">или загрузите Excel файл</label>
+<input type="file" id="fileUpload" accept=".xlsx,.xls"/>
+<button onclick="processData()">Обработать данные</button>
+<div id="comparisonTable"></div>
+<button id="saveBtn" style="display:none;" onclick="saveData()">Сохранить в БД</button>
+</div>
+
+<div id="tab-report" class="tabcontent" style="display:none;">
+<h2>Отчет по отрасли</h2>
+<select id="industrySelect" onchange="loadIndustryReport()"></select>
+<div id="industryStats"></div>
+<table id="industryTable" border="1">
+<thead><tr><th>Название</th><th>ИНН</th><th>Адрес</th><th>Выручка 2023</th><th>Численность</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</main>
+<script src="script.js"></script>
+</body>
+</html>
