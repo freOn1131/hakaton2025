@@ -2,401 +2,61 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Система управления организациями</title>
-<style>
-  /* Минималистичный стиль */
-  body { font-family: Arial, sans-serif; margin:0; background: #fff; color:#1e3a8a; }
-  header { background: #1e3a8a; padding: 10px; color: #fff; display: flex; justify-content: space-between; align-items: center; }
-  header h1 { margin: 0; font-size: 1.5rem; }
-  main { padding: 20px; }
-  nav button { margin-right: 5px; padding: 5px 10px; background:#1e3a8a; color: #fff; border:none; cursor:pointer; }
-  nav button.active { background:#15427a; }
-  .hidden { display:none; }
-  input, select, textarea, button { font-family: inherit; font-size: 1rem; margin: 5px 0; padding: 5px; }
-  table { border-collapse: collapse; width: 100%; margin-top: 10px;}
-  th, td { border: 1px solid #ddd; padding: 8px; }
-  th { background-color: #f2f2f2; cursor: pointer; }
-  tr.diff-yes td { background-color: #e7f8e7; }
-  tr.diff-no td { background-color: #fff3cd; }
-  .highlight { background-color: yellow; }
-  .btn-primary { background-color: #1e3a8a; color: white; border:none; padding: 8px 12px; cursor: pointer; }
-  .btn-primary:disabled { background-color: gray; cursor: not-allowed; }
-  .chart-container { margin-top: 20px; }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Промышленный портфель Москвы</title>
+<link rel="stylesheet" href="styles.css" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <header>
-  <h1>Система управления организациями</h1>
-  <button id="logoutBtn" style="display:none;">Выйти</button>
+<h1>Промышленный портал Москвы</h1>
+<button id="logoutBtn">Выйти</button>
 </header>
+<nav>
+<button class="tablink" onclick="showTab('view')">Просмотр организаций</button>
+<button class="tablink" onclick="showTab('add')">Добавление данных</button>
+<button class="tablink" onclick="showTab('report')">Отчет по отрасли</button>
+</nav>
 <main>
-
-<div id="loginSection">
-  <h2>Вход</h2>
-  <input id="username" placeholder="Логин" />
-  <input id="password" type="password" placeholder="Пароль" />
-  <button id="loginBtn">Войти</button>
-  <p>Или <a href="#" id="showRegister">зарегистрироваться</a></p>
+<div id="tab-view" class="tabcontent">
+<h2>Поиск организации</h2>
+<form id="searchForm">
+<input type="text" id="searchInput" placeholder="Введите ИНН или название" />
+<select id="searchType"><option value="inn">ИНН</option><option value="name">Название</option></select>
+<button type="button" onclick="searchOrganization()">Найти</button>
+</form>
+<div id="searchResults"></div>
+<div id="orgDashboard" style="display:none;">
+<h3>Дашборд организации</h3>
+<canvas id="revenueChart"></canvas>
+<canvas id="profitChart"></canvas>
+<canvas id="staffChart"></canvas>
+<canvas id="salaryChart"></canvas>
+<button onclick="downloadPDF()">Выгрузить PDF отчет</button>
+</div>
 </div>
 
-<div id="registerSection" class="hidden">
-  <h2>Регистрация</h2>
-  <input id="regUsername" placeholder="Логин" />
-  <input id="regPassword" type="password" placeholder="Пароль" />
-  <input id="regPasswordConfirm" type="password" placeholder="Подтверждение пароля" />
-  <button id="registerBtn">Зарегистрироваться</button>
-  <p><a href="#" id="showLogin">войти</a></p>
+<div id="tab-add" class="tabcontent" style="display:none;">
+<h2>Добавление данных</h2>
+<textarea id="rawData" rows="10" cols="50" placeholder="Введите сырые данные"></textarea>
+<br/>
+<label for="fileUpload">или загрузите Excel файл</label>
+<input type="file" id="fileUpload" accept=".xlsx,.xls"/>
+<button onclick="processData()">Обработать данные</button>
+<div id="comparisonTable"></div>
+<button id="saveBtn" style="display:none;" onclick="saveData()">Сохранить в БД</button>
 </div>
 
-<div id="cabinet" class="hidden">
-  <nav>
-    <button class="tabBtn active" data-tab="viewOrgs">Просмотр организаций</button>
-    <button class="tabBtn" data-tab="addData">Добавление данных</button>
-    <button class="tabBtn" data-tab="industryReport">Отчет по отрасли</button>
-  </nav>
-
-  <section id="viewOrgs" class="tabContent">
-    <h2>Поиск организаций</h2>
-    <select id="searchType">
-      <option value="inn">По ИНН</option>
-      <option value="name">По названию</option>
-    </select>
-    <input id="searchInput" placeholder="Введите ИНН или название" />
-    <button id="searchDbBtn">Найти в БД</button>
-    <button id="searchFnsBtn">Найти в ФНС API</button>
-
-    <div id="searchResults"></div>
-    <div id="orgDetails" class="hidden">
-      <h3>Данные организации</h3>
-      <div id="orgInfo"></div>
-      <div class="chart-container">
-        <canvas id="revenueChart"></canvas>
-        <canvas id="profitChart"></canvas>
-        <canvas id="employeesChart"></canvas>
-        <canvas id="salaryChart"></canvas>
-      </div>
-      <button id="downloadPdfBtn">Выгрузить PDF отчет</button>
-    </div>
-  </section>
-
-  <section id="addData" class="tabContent hidden">
-    <h2>Добавление данных</h2>
-    <textarea id="rawDataText" rows="8" style="width: 100%;" placeholder="Вставьте сырые данные здесь"></textarea>
-    <br/>
-    <input type="file" id="excelFileInput" accept=".xlsx,.xls"/>
-    <br/>
-    <button id="processDataBtn" class="btn-primary">Обработать данные</button>
-    <div id="compareTable"></div>
-    <button id="saveDataBtn" class="btn-primary" disabled>Сохранить в БД</button>
-  </section>
-
-  <section id="industryReport" class="tabContent hidden">
-    <h2>Отчет по отрасли</h2>
-    <select id="industrySelect"></select>
-    <button id="showReportBtn" class="btn-primary">Показать отчет</button>
-    <div id="industryStats"></div>
-    <input type="text" id="industrySearch" placeholder="Поиск по таблице" />
-    <table id="industryTable"></table>
-  </section>
+<div id="tab-report" class="tabcontent" style="display:none;">
+<h2>Отчет по отрасли</h2>
+<select id="industrySelect" onchange="loadIndustryReport()"></select>
+<div id="industryStats"></div>
+<table id="industryTable" border="1">
+<thead><tr><th>Название</th><th>ИНН</th><th>Адрес</th><th>Выручка 2023</th><th>Численность</th></tr></thead>
+<tbody></tbody>
+</table>
 </div>
-
-<script>
-  // Имитация базы пользователей и организации (для простоты)
-  const users = [{username:"admin", password:"admin"}];
-  let loggedUser = null;
-
-  // Стейты
-  let orgsDB = [];
-  let selectedOrganization = null;
-
-  // Загрузка отраслей - перед использованием замените на реальный запрос
-  const industries = [
-    "Химическая промышленность",
-    "Станкостроение и инструментальная промышленность",
-    "Пищевая промышленность",
-    "Машиностроение",
-    "Металлургия",
-    "Электроника и радиотехника",
-    "Легкая промышленность",
-    "Фармацевтика",
-    "Деревообработка",
-    "Строительные материалы"
-  ];
-
-  // UI Элементы
-  const loginSection = document.getElementById('loginSection');
-  const registerSection = document.getElementById('registerSection');
-  const cabinet = document.getElementById('cabinet');
-  const logoutBtn = document.getElementById('logoutBtn');
-
-  // Навигация по вкладкам
-  document.querySelectorAll('.tabBtn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tabBtn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.querySelectorAll('.tabContent').forEach(c => c.classList.add('hidden'));
-      document.getElementById(btn.getAttribute('data-tab')).classList.remove('hidden');
-    });
-  });
-
-  // Авторизация
-  document.getElementById('loginBtn').onclick = () => {
-    const u = document.getElementById('username').value.trim();
-    const p = document.getElementById('password').value.trim();
-
-    if(u === "" || p === ""){
-      alert("Введите логин и пароль");
-      return;
-    }
-    if(users.find(x => x.username === u && x.password === p)){
-      loggedUser = u;
-      loginSection.classList.add('hidden');
-      registerSection.classList.add('hidden');
-      cabinet.classList.remove('hidden');
-      logoutBtn.style.display = 'inline-block';
-      loadIndustries();
-    }
-    else alert("Неверные логин или пароль");
-  };
-
-  logoutBtn.onclick = () => {
-    loggedUser = null;
-    loginSection.classList.remove('hidden');
-    cabinet.classList.add('hidden');
-    logoutBtn.style.display = 'none';
-    document.getElementById('username').value = "";
-    document.getElementById('password').value = "";
-  };
-
-  // Регистрация (имитация)
-  document.getElementById('showRegister').onclick = () => {
-    loginSection.classList.add('hidden');
-    registerSection.classList.remove('hidden');
-  };
-  document.getElementById('showLogin').onclick = () => {
-    loginSection.classList.remove('hidden');
-    registerSection.classList.add('hidden');
-  };
-  document.getElementById('registerBtn').onclick = () => {
-    const u = document.getElementById('regUsername').value.trim();
-    const p = document.getElementById('regPassword').value.trim();
-    const pc = document.getElementById('regPasswordConfirm').value.trim();
-
-    if(u === "" || p === "" || pc === ""){
-      alert("Заполните все поля!");
-      return;
-    }
-    if(p !== pc){
-      alert("Пароли не совпадают!");
-      return;
-    }
-    if(users.find(x => x.username === u)){
-      alert("Пользователь с таким логином уже существует!");
-      return;
-    }
-    users.push({username:u,password:p});
-    alert("Регистрация успешна! Теперь войдите.");
-    registerSection.classList.add('hidden');
-    loginSection.classList.remove('hidden');
-  };
-
-  // Загрузка отраслей
-  function loadIndustries(){
-    const industrySelect = document.getElementById('industrySelect');
-    industries.forEach(ind => {
-      const opt = document.createElement('option');
-      opt.value = ind;
-      opt.textContent = ind;
-      industrySelect.appendChild(opt);
-    });
-  }
-
-  // Поиск организаций в БД (имитация)
-  document.getElementById('searchDbBtn').onclick = () => {
-    const type = document.getElementById('searchType').value;
-    const q = document.getElementById('searchInput').value.trim().toLowerCase();
-    if(!q) return alert('Введите значение для поиска');
-    const resultsDiv = document.getElementById('searchResults');
-    resultsDiv.innerHTML = "<h3>Результаты поиска (имитация БД):</h3>";
-    let results = orgsDB.filter(org => {
-      if(type==='inn') return org.inn.toLowerCase() === q;
-      if(type==='name') return (org.short_name.toLowerCase().includes(q) || (org.full_name && org.full_name.toLowerCase().includes(q)));
-    });
-    if(results.length === 0) resultsDiv.innerHTML += "<p>Ничего не найдено</p>";
-    else {
-      results.forEach(org => {
-        const d = document.createElement('div');
-        d.textContent = org.short_name + ' (' + org.inn + ') [Источник: База данных]';
-        d.style.cursor = 'pointer';
-        d.onclick = () => showOrganizationDetails(org);
-        resultsDiv.appendChild(d);
-      });
-    }
-  };
-
-  // Поиск организаций через API ФНС
-  document.getElementById('searchFnsBtn').onclick = () => {
-    const type = document.getElementById('searchType').value;
-    const q = document.getElementById('searchInput').value.trim();
-    if(!q) return alert('Введите значение для поиска');
-    const resultsDiv = document.getElementById('searchResults');
-    resultsDiv.innerHTML = "<h3>Результаты поиска (API ФНС):</h3>";
-
-    let url;
-    if(type === 'inn') url = `/api/fns/search/inn/${encodeURIComponent(q)}`;
-    else url = `/api/fns/search/name?name=${encodeURIComponent(q)}`;
-
-    fetch(url)
-      .then(r => r.json())
-      .then(data => {
-        if (!data || (Array.isArray(data) && data.length === 0)) {
-          resultsDiv.innerHTML += "<p>Ничего не найдено</p>";
-          return;
-        }
-        if (Array.isArray(data)) {
-          data.forEach(org => {
-            const d = document.createElement('div');
-            d.textContent = (org.name || org.fullName) + ' (' + (org.inn || '') + ') [Источник: API ФНС]';
-            d.style.cursor = 'pointer';
-            d.onclick = () => showOrganizationDetails(org);
-            resultsDiv.appendChild(d);
-          });
-        } else {
-          const d = document.createElement('div');
-          d.textContent = (data.name || data.fullName) + ' (' + (data.inn || '') + ') [Источник: API ФНС]';
-          d.style.cursor = 'pointer';
-          d.onclick = () => showOrganizationDetails(data);
-          resultsDiv.appendChild(d);
-        }
-      })
-      .catch(e => resultsDiv.innerHTML += "<p>Ошибка запроса: " + e.message + "</p>");
-  };
-
-  // Показ деталей организации
-  function showOrganizationDetails(org) {
-    selectedOrganization = org;
-    const infoDiv = document.getElementById('orgInfo');
-    infoDiv.innerHTML = `
-      <p><b>ИНН:</b> ${org.inn || org.INN || ''}</p>
-      <p><b>Название:</b> ${org.short_name || org.name || org.shortName || ''}</p>
-      <p><b>Статус:</b> ${org.status || org.state || ''}</p>
-      <p><b>Адрес:</b> ${org.legal_address || org.address || ''}</p>
-      <p><b>Отрасль:</b> ${org.main_industry || ''}</p>
-    `;
-    document.getElementById('orgDetails').classList.remove('hidden');
-    // Для упрощения графики не реализованы в этом примере
-  }
-
-  // Добавление данных - разбор через API нейросети
-  document.getElementById('processDataBtn').onclick = () => {
-    const textData = document.getElementById('rawDataText').value.trim();
-    if (!textData) {
-      alert("Введите сырые данные или загрузите Excel файл");
-      return;
-    }
-    document.getElementById('compareTable').innerHTML = "Данные обрабатываются нейросетью...";
-
-    fetch('/api/parse_data', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({raw_data: textData})
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.error) {
-        document.getElementById('compareTable').innerHTML = `<p style="color:red;">Ошибка: ${data.error}</p>`;
-        return;
-      }
-      displayCompareTable(data);
-      document.getElementById('saveDataBtn').disabled = false;
-    })
-    .catch(e => {
-      document.getElementById('compareTable').innerHTML = `<p style="color:red;">Ошибка запроса: ${e.message}</p>`;
-    });
-  };
-
-  // Показ таблицы сравнения (взятые сверху данные и данные API ФНС)
-  // В условии примера использована только левая колонка с данными из парсинга
-  function displayCompareTable(parsedData) {
-    let html = `<table>
-      <tr><th>Параметр</th><th>Введенные данные</th><th>Данные из ФНС API (пусто - не реализовано)</th></tr>`;
-
-    const keys = ['inn','short_name','full_name','status','legal_address','director','main_okved','registration_date'];
-    keys.forEach(key => {
-      const valLeft = parsedData[key] || '';
-      const valRight = ''; // Для упрощения пока пусто
-      const diffClass = valLeft === valRight ? 'diff-yes' : 'diff-no';
-      html += `<tr class="${diffClass}"><td>${key}</td><td>${valLeft}</td><td>${valRight}</td></tr>`;
-    });
-
-    html += "</table>";
-    document.getElementById('compareTable').innerHTML = html;
-  }
-
-  // Сохраняем данные в БД через API (не реализовано в этом примере)
-  document.getElementById('saveDataBtn').onclick = () => {
-    alert("Функция сохранения в БД пока не реализована в этом примере.");
-  };
-
-  // Отчет по отрасли - выводит список организаций из локального массива (имитация)
-  document.getElementById('showReportBtn').onclick = () => {
-    const selIndustry = document.getElementById('industrySelect').value;
-    const statsDiv = document.getElementById('industryStats');
-    const table = document.getElementById('industryTable');
-
-    let filteredOrgs = orgsDB.filter(o => o.main_industry === selIndustry || o.sub_industry === selIndustry);
-    if (filteredOrgs.length === 0) {
-      statsDiv.innerHTML = "<p>Организации не найдены для выбранной отрасли</p>";
-      table.innerHTML = '';
-      return;
-    }
-
-    // Статистика
-    const totalOrgs = filteredOrgs.length;
-    const totalRevenue = filteredOrgs.reduce((a,b) => a + (b.financial_data?.[0]?.revenue || 0), 0);
-    const avgEmployees = filteredOrgs.reduce((a,b) => a + (b.personnel_data?.[0]?.total_employees || 0), 0) / totalOrgs;
-
-    statsDiv.innerHTML = `<p>Количество предприятий: ${totalOrgs}</p>
-                          <p>Суммарная выручка (пример 2022): ${totalRevenue.toLocaleString()}</p>
-                          <p>Средняя численность: ${avgEmployees.toFixed(1)}</p>`;
-
-    // Таблица
-    let rows = `<tr>
-        <th>Название</th><th>ИНН</th><th>Адрес</th><th>Выручка 2023</th><th>Численность</th>
-      </tr>`;
-
-    filteredOrgs.forEach(o => {
-      rows += `<tr>
-        <td>${o.short_name}</td>
-        <td>${o.inn}</td>
-        <td>${o.legal_address}</td>
-        <td>${o.financial_data?.[1]?.revenue || 0}</td>
-        <td>${o.personnel_data?.[1]?.total_employees || 0}</td>
-      </tr>`;
-    });
-
-    table.innerHTML = rows;
-  };
-
-  // Имитируем загрузку организаций из бэкенда (в реальном проекте будет fetch)
-  function loadMockOrganizations() {
-    orgsDB = [
-      {
-        id: 1, inn: "7714431171", short_name: "АО \"СВОБОДА\"", full_name: "АКЦИОНЕРНОЕ ОБЩЕСТВО \"СВОБОДА\"", status: "Действующая",
-        legal_address: "127015, г. Москва, ул. Вятская, д. 47 стр. 8 этаж 4 пом. 45-46", main_industry: "Химическая промышленность", sub_industry: "Косметика",
-        financial_data: [{year:2022, revenue:850000}], personnel_data: [{year:2022, total_employees:320}]
-      }
-    ];
-  }
-
-  // Инициализация
-  function init() {
-    loadMockOrganizations();
-  }
-
-  init();
-</script>
+</main>
+<script src="script.js"></script>
 </body>
 </html>
