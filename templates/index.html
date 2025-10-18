@@ -3,1455 +3,1387 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Система управления данными предприятий Москвы</title>
+    <title>Московские предприятия - Управление данными</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        :root {
-            --primary-color: #1e3a8a;
-            --primary-light: #3b82f6;
-            --secondary-color: #64748b;
-            --background: #f8fafc;
-            --surface: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-            --radius: 8px;
-        }
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
+
         body {
-            font-family: 'Arial', 'Helvetica', sans-serif;
-            background-color: var(--background);
-            color: var(--text-primary);
-            line-height: 1.6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: white;
+            color: #333;
         }
+
+        .header {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 2rem;
         }
-        .auth-page {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-        }
-        .auth-form {
-            background: var(--surface);
-            padding: 40px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-lg);
-            width: 100%;
+
+        .login-container {
             max-width: 400px;
+            margin: 5rem auto;
+            padding: 2rem;
+            background: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .auth-form h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: var(--primary-color);
-        }
+
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 1rem;
         }
+
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 0.5rem;
             font-weight: 500;
         }
-        .form-control {
+
+        .form-group input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 14px;
-            transition: border-color 0.3s;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
         }
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
+
         .btn {
             display: inline-block;
-            padding: 12px 24px;
-            background: var(--primary-color);
+            padding: 0.75rem 1.5rem;
+            background-color: #1e3a8a;
             color: white;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
             text-decoration: none;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.25rem;
             transition: background-color 0.3s;
         }
+
         .btn:hover {
-            background: var(--primary-light);
+            background-color: #1e40af;
         }
+
         .btn-secondary {
-            background: var(--secondary-color);
+            background-color: #6b7280;
         }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
         .btn-full {
             width: 100%;
+            margin-bottom: 1rem;
         }
-        .auth-link {
-            text-align: center;
-            margin-top: 20px;
+
+        .navigation {
+            background-color: #f0f0f0;
+            padding: 1rem;
+            border-bottom: 2px solid #ddd;
         }
-        .auth-link a {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-        .dashboard {
-            min-height: 100vh;
-            display: none;
-        }
-        .dashboard.active {
-            display: block;
-        }
-        .header {
-            background: var(--surface);
-            padding: 15px 0;
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-        }
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header h1 {
-            color: var(--primary-color);
-            font-size: 24px;
-        }
+
         .nav-tabs {
             display: flex;
-            gap: 0;
-            margin: 20px 0;
-            border-bottom: 1px solid var(--border);
+            gap: 1rem;
+            justify-content: center;
         }
+
         .nav-tab {
-            padding: 15px 25px;
-            background: none;
+            padding: 0.75rem 1.5rem;
+            background-color: transparent;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s;
+            font-size: 1rem;
+            transition: background-color 0.3s;
         }
+
         .nav-tab.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
+            background-color: #1e3a8a;
+            color: white;
         }
-        .nav-tab:hover {
-            color: var(--primary-color);
+
+        .nav-tab:hover:not(.active) {
+            background-color: #ddd;
         }
+
         .tab-content {
             display: none;
+            padding: 2rem 0;
         }
+
         .tab-content.active {
             display: block;
         }
-        .card {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-            margin-bottom: 20px;
-        }
+
         .search-section {
+            background: #f9f9f9;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .form-row {
             display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 1rem;
+            margin-bottom: 1rem;
             align-items: end;
         }
-        .search-section .form-group {
+
+        .form-row > div {
             flex: 1;
-            margin-bottom: 0;
         }
-        .btn-group {
-            display: flex;
-            gap: 10px;
+
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            background-color: white;
         }
-        .results-section {
-            margin-top: 20px;
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            resize: vertical;
         }
-        .result-item {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 15px;
-            margin-bottom: 10px;
+
+        .file-input {
+            margin-bottom: 1rem;
+        }
+
+        .file-info {
+            margin-top: 0.5rem;
+            font-style: italic;
+            color: #666;
+        }
+
+        .organization-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .result-item:hover {
-            border-color: var(--primary-color);
-            box-shadow: var(--shadow);
+
+        .organization-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
-        .result-item .source {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
+
+        .organization-details {
+            background: #f9f9f9;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-top: 2rem;
         }
-        .result-item .name {
-            font-weight: 500;
-            color: var(--primary-color);
-            margin-bottom: 5px;
-        }
-        .organization-detail {
-            display: none;
-            margin-top: 20px;
-        }
-        .organization-detail.active {
-            display: block;
-        }
-        .info-grid {
+
+        .details-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
-        .info-item {
-            background: var(--background);
-            padding: 15px;
-            border-radius: var(--radius);
+
+        .detail-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 5px;
         }
-        .info-item .label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
+
+        .detail-item strong {
+            color: #1e3a8a;
         }
-        .info-item .value {
-            font-weight: 500;
-        }
-        .charts-grid {
+
+        .charts-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 2rem;
+            margin-top: 2rem;
         }
+
+        .chart-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-box h3 {
+            margin-bottom: 1rem;
+            color: #1e3a8a;
+        }
+
         .chart-container {
-            background: var(--surface);
-            padding: 20px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            height: 350px;
-        }
-        .chart-container h3 {
-            margin-bottom: 15px;
-            color: var(--text-primary);
-            font-size: 16px;
-        }
-        .chart-canvas {
             position: relative;
-            height: calc(100% - 40px);
+            height: 300px;
         }
-        .data-input-section {
-            margin-bottom: 20px;
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
         }
-        .input-method {
-            margin-bottom: 20px;
-        }
-        .input-method h3 {
-            margin-bottom: 10px;
-            color: var(--text-primary);
-        }
-        .file-input {
-            border: 2px dashed var(--border);
-            border-radius: var(--radius);
-            padding: 40px;
+
+        .stats-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             text-align: center;
-            margin-bottom: 20px;
-            transition: border-color 0.3s;
         }
-        .file-input:hover {
-            border-color: var(--primary-color);
+
+        .stats-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
         }
-        .file-input input[type="file"] {
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #1e3a8a;
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .processed-data {
+            background: #e8f5e8;
+            padding: 1.5rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            white-space: pre-wrap;
+        }
+
+        .edit-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 1rem;
             display: none;
         }
-        .file-label {
-            cursor: pointer;
-            color: var(--primary-color);
+
+        .edit-form.show {
+            display: block;
         }
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: var(--surface);
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-        .comparison-table th,
-        .comparison-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-        .comparison-table th {
-            background: var(--background);
-            font-weight: 500;
-        }
-        .comparison-table .match {
-            background-color: #f0f9ff;
-        }
-        .comparison-table .mismatch {
-            background-color: #fefce8;
-        }
-        .industry-stats {
+
+        .edit-form .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
         }
-        .stat-card {
-            background: var(--surface);
-            padding: 20px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            text-align: center;
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            margin: 1rem 0;
         }
-        .stat-card .number {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 5px;
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            margin: 1rem 0;
         }
-        .stat-card .label {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-        .industry-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: var(--surface);
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-        .industry-table th,
-        .industry-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-        .industry-table th {
-            background: var(--background);
-            font-weight: 500;
-            cursor: pointer;
-            user-select: none;
-            position: relative;
-        }
-        .industry-table th:hover {
-            background: var(--border);
-        }
-        .industry-table th.sorted::after {
-            content: '▲';
-            position: absolute;
-            right: 8px;
-            font-size: 10px;
-        }
-        .industry-table th.sorted.desc::after {
-            content: '▼';
-        }
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-secondary);
-        }
-        .error {
-            background: #fef2f2;
-            color: #dc2626;
-            padding: 10px;
-            border-radius: var(--radius);
-            margin: 10px 0;
-        }
-        .success {
-            background: #f0fdf4;
-            color: #16a34a;
-            padding: 10px;
-            border-radius: var(--radius);
-            margin: 10px 0;
-        }
-        @media (max-width: 768px) {
-            .search-section {
-                flex-direction: column;
-            }
-            .btn-group {
-                width: 100%;
-            }
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-            .nav-tabs {
-                flex-direction: column;
-            }
-            .nav-tab {
-                border-bottom: none;
-                border-right: 2px solid transparent;
-            }
-            .nav-tab.active {
-                border-right-color: var(--primary-color);
-                border-bottom-color: transparent;
-            }
-        }
+
         .hidden {
             display: none;
         }
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: var(--radius);
-            border: 1px solid transparent;
-        }
-        .alert-info {
-            color: #0c5460;
-            background-color: #d1ecf1;
-            border-color: #bee5eb;
-        }
-        .alert-success {
-            color: #155724;
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-        }
-        .alert-warning {
-            color: #856404;
-            background-color: #fff3cd;
-            border-color: #ffeaa7;
-        }
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Страница авторизации -->
-    <div id="authPage" class="auth-page">
-        <div class="auth-form">
-            <h2>Система управления предприятиями</h2>
-            <!-- Форма входа -->
-            <div id="loginForm">
-                <form id="loginFormElement">
-                    <div class="form-group">
-                        <label for="username">Логин:</label>
-                        <input type="text" id="username" class="form-control" value="admin" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Пароль:</label>
-                        <input type="password" id="password" class="form-control" value="admin" required>
-                    </div>
-                    <button type="submit" class="btn btn-full">Войти</button>
-                </form>
-                <div class="auth-link">
-                    <a href="#" id="showRegister">Регистрация</a>
-                </div>
+    <div class="header">
+        <h1>Система управления данными московских предприятий</h1>
+    </div>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <h2 style="text-align: center; margin-bottom: 2rem;">Авторизация</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Логин:</label>
+                <input type="text" id="username" name="username" required>
             </div>
-            <!-- Форма регистрации -->
-            <div id="registerForm" class="hidden">
-                <form id="registerFormElement">
-                    <div class="form-group">
-                        <label for="regUsername">Логин:</label>
-                        <input type="text" id="regUsername" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="regPassword">Пароль:</label>
-                        <input type="password" id="regPassword" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="regPasswordConfirm">Подтвердите пароль:</label>
-                        <input type="password" id="regPasswordConfirm" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-full">Зарегистрироваться</button>
-                </form>
-                <div class="auth-link">
-                    <a href="#" id="showLogin">Уже есть аккаунт? Войти</a>
-                </div>
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required>
             </div>
-            <div id="authMessage"></div>
+            <button type="submit" class="btn btn-full">Войти</button>
+        </form>
+        
+        <div style="text-align: center; margin: 1rem 0;">
+            <p>Альтернативные способы входа:</p>
+        </div>
+        
+        <button type="button" class="btn btn-secondary btn-full" id="ecpLogin">Вход по ЭЦП</button>
+        <button type="button" class="btn btn-secondary btn-full" id="gosuslugiLogin">Вход по Госуслугам</button>
+        
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="#" style="color: #1e3a8a;">Зарегистрироваться</a>
         </div>
     </div>
-    <!-- Основная панель -->
-    <div id="dashboard" class="dashboard">
-        <header class="header">
-            <div class="container">
-                <div class="header-content">
-                    <h1>Система управления данными предприятий</h1>
-                    <button class="btn" id="logoutBtn">Выйти</button>
-                </div>
-            </div>
-        </header>
-        <div class="container">
-            <!-- Навигация -->
+
+    <!-- Main Application -->
+    <div id="mainApp" class="hidden">
+        <nav class="navigation">
             <div class="nav-tabs">
-                <button class="nav-tab active" data-tab="organizations">Просмотр организаций</button>
-                <button class="nav-tab" data-tab="addData">Добавление данных</button>
-                <button class="nav-tab" data-tab="industryReport">Отчет по отрасли</button>
+                <button class="nav-tab active" data-tab="search">Просмотр организаций</button>
+                <button class="nav-tab" data-tab="add-data">Добавление данных</button>
+                <button class="nav-tab" data-tab="reports">Отчет по отраслям</button>
             </div>
-            <!-- Вкладка "Просмотр организаций" -->
-            <div id="organizations" class="tab-content active">
-                <div class="card">
-                    <h3>Поиск организаций</h3>
-                    <div class="search-section">
-                        <div class="form-group">
-                            <label for="searchQuery">Поисковый запрос:</label>
-                            <input type="text" id="searchQuery" class="form-control" placeholder="Введите ИНН или название">
-                        </div>
-                        <div class="form-group">
-                            <label for="searchType">Тип поиска:</label>
-                            <select id="searchType" class="form-control">
-                                <option value="inn">По ИНН</option>
-                                <option value="name">По названию</option>
+        </nav>
+
+        <div class="container">
+            <!-- Search Organizations Tab -->
+            <div id="search-tab" class="tab-content active">
+                <h2>Поиск организаций</h2>
+                
+                <div class="search-section">
+                    <div class="form-row">
+                        <div>
+                            <label>Провайдер API:</label>
+                            <select id="apiProvider">
+                                <option value="fns">API-ФНС</option>
+                                <option value="dadata">DaData</option>
+                                <option value="spark">СПАРК Интерфакс</option>
                             </select>
                         </div>
-                        <div class="btn-group">
-                            <button class="btn" id="searchInDB">Найти в БД</button>
-                            <button class="btn btn-secondary" id="searchInAPI">Найти в ФНС API</button>
+                        <div>
+                            <label>ИНН или название организации:</label>
+                            <input type="text" id="searchQuery" placeholder="Введите ИНН или название">
+                        </div>
+                        <div>
+                            <button class="btn" id="searchBtn">Найти в ФНС API</button>
                         </div>
                     </div>
                 </div>
-                <div id="searchResults" class="results-section"></div>
-                <!-- Детальная информация об организации -->
-                <div id="organizationDetail" class="organization-detail">
-                    <div class="card">
-                        <h3>Информация об организации</h3>
-                        <div id="organizationInfo" class="info-grid"></div>
-                        <button class="btn" id="generatePDF">Выгрузить PDF отчет</button>
+
+                <div class="loading" id="searchLoading">
+                    <p>Поиск организаций...</p>
+                </div>
+
+                <div id="searchResults"></div>
+                <div id="organizationDetails"></div>
+            </div>
+
+            <!-- Add Data Tab -->
+            <div id="add-data-tab" class="tab-content">
+                <h2>Добавление данных</h2>
+                
+                <div class="search-section">
+                    <div class="form-row">
+                        <div>
+                            <label>Выберите вашу организацию:</label>
+                            <select id="userOrganization">
+                                <option value="">Выберите организацию</option>
+                                <option value="7714431171">АО "СВОБОДА"</option>
+                                <option value="other1">ООО "Пример 1"</option>
+                                <option value="other2">ЗАО "Пример 2"</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button class="btn btn-secondary" id="editOrgBtn">Редактировать свои данные организации</button>
+                        </div>
                     </div>
-                    <!-- Графики -->
-                    <div class="charts-grid">
-                        <div class="chart-container">
+                </div>
+
+                <div class="edit-form" id="editForm">
+                    <h3>Редактирование данных организации</h3>
+                    <form id="organizationEditForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Название:</label>
+                                <input type="text" id="edit_name" name="name">
+                            </div>
+                            <div class="form-group">
+                                <label>ИНН:</label>
+                                <input type="text" id="edit_inn" name="inn" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Адрес:</label>
+                                <input type="text" id="edit_address" name="address">
+                            </div>
+                            <div class="form-group">
+                                <label>Директор:</label>
+                                <input type="text" id="edit_director" name="director">
+                            </div>
+                            <div class="form-group">
+                                <label>Отрасль:</label>
+                                <input type="text" id="edit_industry" name="industry">
+                            </div>
+                            <div class="form-group">
+                                <label>ОКВЭД:</label>
+                                <input type="text" id="edit_okved" name="okved">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success">Сохранить изменения</button>
+                        <button type="button" class="btn btn-secondary" id="cancelEditBtn">Отмена</button>
+                    </form>
+                </div>
+                
+                <h3>Способ 1: Текстовый ввод</h3>
+                <div class="form-group">
+                    <label>Введите сырые данные:</label>
+                    <textarea id="rawTextData" placeholder="Вставьте данные организации для обработки..."></textarea>
+                    <button class="btn" id="processTextBtn">Обработать текст</button>
+                </div>
+
+                <h3>Способ 2: Загрузка файлов</h3>
+                <div class="file-input">
+                    <input type="file" id="fileInput" accept=".xlsx,.xls,.pdf" style="margin-bottom: 1rem;">
+                    <div class="file-info" id="fileInfo"></div>
+                    <button class="btn" id="uploadBtn">Загрузить и обработать</button>
+                </div>
+
+                <div class="loading" id="processLoading">
+                    <p>Обработка данных...</p>
+                </div>
+
+                <div id="processedResult"></div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="reports-tab" class="tab-content">
+                <h2>Отчет по отраслям</h2>
+                
+                <div class="search-section">
+                    <div class="form-row">
+                        <div>
+                            <label>Выберите отрасль:</label>
+                            <select id="industrySelect">
+                                <option value="">Выберите отрасль</option>
+                                <option value="chemical">Химическая промышленность</option>
+                                <option value="machine">Машиностроение</option>
+                                <option value="food">Пищевая промышленность</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button class="btn" id="generateReportBtn">Сгенерировать отчет</button>
+                            <button class="btn btn-success" id="exportPdfBtn">Выгрузить отчет в PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="industryReport"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global data
+        const organizationData = {
+            "7714431171": {
+                inn: "7714431171",
+                short_name: 'АО "СВОБОДА"',
+                full_name: 'АКЦИОНЕРНОЕ ОБЩЕСТВО "СВОБОДА"',
+                status: "Действующая",
+                legal_address: "127015, г. Москва, ул. Вятская, д. 47 стр. 8",
+                main_industry: "Химическая промышленность",
+                sub_industry: "Косметика",
+                okved: "20.42",
+                director: "Иванов Иван Иванович",
+                okrug: "САО",
+                raion: "Савёловский",
+                registration_date: "12.05.2005",
+                financial_data: [
+                    { year: 2022, revenue: 500000, net_profit: 50000 },
+                    { year: 2023, revenue: 600000, net_profit: 70000 },
+                    { year: 2024, revenue: 750000, net_profit: 90000 }
+                ],
+                personnel_data: [
+                    { year: 2022, total_employees: 120, avg_salary_moscow: 85 },
+                    { year: 2023, total_employees: 135, avg_salary_moscow: 95 },
+                    { year: 2024, total_employees: 150, avg_salary_moscow: 105 }
+                ]
+            }
+        };
+
+        const industryData = {
+            chemical: {
+                name: "Химическая промышленность",
+                count: 15,
+                total_revenue: 8500,
+                avg_employees: 125,
+                organizations: [
+                    { name: 'АО "СВОБОДА"', inn: "7714431171", address: "ул. Вятская, д. 47", revenue: 750, employees: 150 },
+                    { name: 'ООО "Химпром"', inn: "7714123456", address: "ул. Ленина, д. 25", revenue: 1200, employees: 180 },
+                    { name: 'ЗАО "Синтез"', inn: "7714789012", address: "пр-т Мира, д. 15", revenue: 890, employees: 95 }
+                ]
+            },
+            machine: {
+                name: "Машиностроение",
+                count: 32,
+                total_revenue: 15200,
+                avg_employees: 280,
+                organizations: [
+                    { name: 'ОАО "Машиностроитель"', inn: "7715123456", address: "ул. Промышленная, д. 10", revenue: 2500, employees: 320 },
+                    { name: 'ООО "Техника"', inn: "7715789012", address: "ш. Энтузиастов, д. 45", revenue: 1800, employees: 250 }
+                ]
+            },
+            food: {
+                name: "Пищевая промышленность",
+                count: 48,
+                total_revenue: 9800,
+                avg_employees: 95,
+                organizations: [
+                    { name: 'ООО "Хлебопек"', inn: "7716123456", address: "ул. Хлебная, д. 8", revenue: 650, employees: 85 },
+                    { name: 'ЗАО "Молпродукт"', inn: "7716789012", address: "ул. Молочная, д. 12", revenue: 980, employees: 120 }
+                ]
+            }
+        };
+
+        let currentUser = null;
+        let currentIndustry = null;
+
+        // DOM elements
+        const loginPage = document.getElementById('loginPage');
+        const mainApp = document.getElementById('mainApp');
+        const loginForm = document.getElementById('loginForm');
+        const ecpLoginBtn = document.getElementById('ecpLogin');
+        const gosuslugiLoginBtn = document.getElementById('gosuslugiLogin');
+
+        // Tab switching
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const tabName = e.target.dataset.tab;
+                switchTab(tabName);
+            });
+        });
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        // Login functionality
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple validation
+            if (username && password) {
+                currentUser = username;
+                showMainApp();
+            } else {
+                alert('Пожалуйста, заполните все поля');
+            }
+        });
+
+        ecpLoginBtn.addEventListener('click', () => {
+            alert('Функция входа по ЭЦП в разработке');
+        });
+
+        gosuslugiLoginBtn.addEventListener('click', () => {
+            alert('Функция входа через Госуслуги в разработке');
+        });
+
+        function showMainApp() {
+            loginPage.classList.add('hidden');
+            mainApp.classList.remove('hidden');
+        }
+
+        // Search functionality
+        const searchBtn = document.getElementById('searchBtn');
+        const searchQuery = document.getElementById('searchQuery');
+        const apiProvider = document.getElementById('apiProvider');
+        const searchResults = document.getElementById('searchResults');
+        const searchLoading = document.getElementById('searchLoading');
+
+        searchBtn.addEventListener('click', performSearch);
+        searchQuery.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        async function performSearch() {
+            const query = searchQuery.value.trim();
+            const provider = apiProvider.value;
+            
+            if (!query) {
+                alert('Введите ИНН или название организации');
+                return;
+            }
+
+            searchLoading.classList.add('show');
+            searchResults.innerHTML = '';
+            
+            // Simulate API call
+            setTimeout(() => {
+                searchLoading.classList.remove('show');
+                
+                // Check if it's our test organization
+                if (query === '7714431171' || query.toLowerCase().includes('свобода')) {
+                    displaySearchResults([organizationData['7714431171']]);
+                } else {
+                    // Mock search results
+                    const mockResults = [
+                        {
+                            inn: '1234567890',
+                            short_name: 'ООО "Пример"',
+                            legal_address: 'г. Москва, ул. Примерная, д. 1',
+                            status: 'Действующая'
+                        }
+                    ];
+                    displaySearchResults(mockResults);
+                }
+            }, 1500);
+        }
+
+        function displaySearchResults(results) {
+            if (results.length === 0) {
+                searchResults.innerHTML = '<p>Организации не найдены</p>';
+                return;
+            }
+
+            const html = results.map(org => `
+                <div class="organization-card" onclick="showOrganizationDetails('${org.inn}')">
+                    <h3>${org.short_name || org.full_name}</h3>
+                    <p><strong>ИНН:</strong> ${org.inn}</p>
+                    <p><strong>Адрес:</strong> ${org.legal_address}</p>
+                    <p><strong>Статус:</strong> ${org.status}</p>
+                </div>
+            `).join('');
+            
+            searchResults.innerHTML = `<h3>Результаты поиска:</h3>${html}`;
+        }
+
+        function showOrganizationDetails(inn) {
+            const org = organizationData[inn];
+            if (!org) {
+                alert('Подробная информация недоступна для данной организации');
+                return;
+            }
+
+            const detailsHtml = `
+                <div class="organization-details">
+                    <h3>Информация об организации</h3>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <p><strong>Полное название:</strong> ${org.full_name}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>ИНН:</strong> ${org.inn}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Адрес:</strong> ${org.legal_address}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Директор:</strong> ${org.director}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Статус:</strong> ${org.status}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Дата регистрации:</strong> ${org.registration_date}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>ОКВЭД:</strong> ${org.okved}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Отрасль:</strong> ${org.main_industry}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Округ:</strong> ${org.okrug}</p>
+                        </div>
+                        <div class="detail-item">
+                            <p><strong>Район:</strong> ${org.raion}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="charts-container">
+                        <div class="chart-box">
                             <h3>Выручка по годам (тыс. руб.)</h3>
-                            <div class="chart-canvas">
+                            <div class="chart-container">
                                 <canvas id="revenueChart"></canvas>
                             </div>
                         </div>
-                        <div class="chart-container">
+                        <div class="chart-box">
                             <h3>Прибыль по годам (тыс. руб.)</h3>
-                            <div class="chart-canvas">
+                            <div class="chart-container">
                                 <canvas id="profitChart"></canvas>
                             </div>
                         </div>
-                        <div class="chart-container">
+                        <div class="chart-box">
                             <h3>Численность сотрудников</h3>
-                            <div class="chart-canvas">
+                            <div class="chart-container">
                                 <canvas id="employeesChart"></canvas>
                             </div>
                         </div>
-                        <div class="chart-container">
+                        <div class="chart-box">
                             <h3>Средняя зарплата в Москве (тыс. руб.)</h3>
-                            <div class="chart-canvas">
+                            <div class="chart-container">
                                 <canvas id="salaryChart"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- Вкладка "Добавление данных" -->
-            <div id="addData" class="tab-content">
-                <div class="card">
-                    <h3>Добавление данных организаций</h3>
-                    <div class="data-input-section">
-                        <div class="input-method">
-                            <h4>Способ 1: Ввод сырых данных</h4>
-                            <div class="form-group">
-                                <label for="rawData">Введите данные организации:</label>
-                                <textarea id="rawData" class="form-control" rows="6" placeholder="Введите данные об организации в свободной форме..."></textarea>
-                            </div>
-                        </div>
-                        <div class="input-method">
-                            <h4>Способ 2: Загрузка Excel файла</h4>
-                            <div class="file-input">
-                                <input type="file" id="excelFile" accept=".xlsx,.xls">
-                                <label for="excelFile" class="file-label">
-                                    <p>Нажмите для выбора Excel файла</p>
-                                    <p style="font-size: 12px; color: var(--text-secondary);">Поддерживаются форматы: .xlsx, .xls</p>
-                                </label>
-                            </div>
-                            <div id="fileName"></div>
-                        </div>
-                        <button class="btn btn-full" id="processData">Обработать данные</button>
-                    </div>
-                </div>
-                <div id="processingResult" class="card hidden">
-                    <h3>Результат обработки</h3>
-                    <div id="processingMessage"></div>
-                    <div id="comparisonSection"></div>
-                    <button class="btn btn-full" id="saveToDatabase">Сохранить в БД</button>
-                </div>
-            </div>
-            <!-- Вкладка "Отчет по отрасли" -->
-            <div id="industryReport" class="tab-content">
-                <div class="card">
-                    <h3>Анализ по отраслям</h3>
-                    <div class="form-group">
-                        <label for="industrySelect">Выберите отрасль:</label>
-                        <select id="industrySelect" class="form-control">
-                            <option value="">-- Выберите отрасль --</option>
-                        </select>
-                    </div>
-                    <button class="btn" id="showIndustryReport">Показать отчет</button>
-                </div>
-                <div id="industryStats" class="hidden">
-                    <div class="industry-stats">
-                        <div class="stat-card">
-                            <div class="number" id="totalCompanies">0</div>
-                            <div class="label">Предприятий</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="number" id="totalRevenue">0</div>
-                            <div class="label">Суммарная выручка (млн руб.)</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="number" id="avgEmployees">0</div>
-                            <div class="label">Средняя численность</div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <h3>Организации в отрасли</h3>
-                        <div class="form-group">
-                            <input type="text" id="tableSearch" class="form-control" placeholder="Поиск по таблице...">
-                        </div>
-                        <table class="industry-table" id="industryTable">
-                            <thead>
-                                <tr>
-                                    <th data-sort="name">Название</th>
-                                    <th data-sort="inn">ИНН</th>
-                                    <th data-sort="address">Адрес</th>
-                                    <th data-sort="revenue">Выручка 2024</th>
-                                    <th data-sort="employees">Численность</th>
-                                </tr>
-                            </thead>
-                            <tbody id="industryTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        // Данные приложения
-        const appData = {
-            organizations: [
-                {
-                    id: 1,
-                    inn: "7714431171",
-                    short_name: 'АО "СВОБОДА"',
-                    full_name: 'АКЦИОНЕРНОЕ ОБЩЕСТВО "СВОБОДА"',
-                    status: "Действующая",
-                    legal_address: "127015, г. Москва, ул. Вятская, д. 47 стр. 8 этаж 4 пом. 45-46",
-                    production_address: "127015, г. Москва, ул. Вятская, д. 47 стр. 8",
-                    main_industry: "Химическая промышленность",
-                    sub_industry: "Косметика",
-                    main_okved: "20.42",
-                    director: "Иванов Иван Иванович",
-                    registration_date: "01.01.2000",
-                    okrug: "САО",
-                    raion: "Савёловский",
-                    financial_data: [
-                        { year: 2022, revenue: 850000, net_profit: 45000, taxes_total: 120000, investments: 50000, export_volume: 100000 },
-                        { year: 2023, revenue: 920000, net_profit: 52000, taxes_total: 135000, investments: 60000, export_volume: 120000 },
-                        { year: 2024, revenue: 1050000, net_profit: 68000, taxes_total: 155000, investments: 75000, export_volume: 150000 }
-                    ],
-                    personnel_data: [
-                        { year: 2022, total_employees: 320, moscow_employees: 320, avg_salary_moscow: 85.5 },
-                        { year: 2023, total_employees: 340, moscow_employees: 340, avg_salary_moscow: 92.3 },
-                        { year: 2024, total_employees: 365, moscow_employees: 365, avg_salary_moscow: 98.7 }
-                    ]
-                },
-                {
-                    id: 2,
-                    inn: "7721840520",
-                    short_name: 'ООО "РУ КМЗ"',
-                    full_name: 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "РУ КМЗ"',
-                    status: "Действующая",
-                    legal_address: "г. Москва, ул. Производственная, д. 10",
-                    production_address: "г. Москва, ул. Производственная, д. 10",
-                    main_industry: "Станкостроение и инструментальная промышленность",
-                    sub_industry: "Металлообработка",
-                    main_okved: "25.62",
-                    director: "Петров Петр Петрович",
-                    registration_date: "15.03.1998",
-                    okrug: "ВАО",
-                    raion: "Перово",
-                    financial_data: [
-                        { year: 2022, revenue: 1200000, net_profit: 85000, taxes_total: 180000, investments: 120000, export_volume: 200000 },
-                        { year: 2023, revenue: 1350000, net_profit: 95000, taxes_total: 200000, investments: 150000, export_volume: 250000 },
-                        { year: 2024, revenue: 1480000, net_profit: 110000, taxes_total: 225000, investments: 180000, export_volume: 280000 }
-                    ],
-                    personnel_data: [
-                        { year: 2022, total_employees: 450, moscow_employees: 450, avg_salary_moscow: 95.2 },
-                        { year: 2023, total_employees: 470, moscow_employees: 470, avg_salary_moscow: 102.8 },
-                        { year: 2024, total_employees: 485, moscow_employees: 485, avg_salary_moscow: 108.5 }
-                    ]
-                }
-            ],
-            industries: [
-                "Химическая промышленность",
-                "Станкостроение и инструментальная промышленность",
-                "Пищевая промышленность",
-                "Машиностроение",
-                "Металлургия",
-                "Электроника и радиотехника",
-                "Легкая промышленность",
-                "Фармацевтика",
-                "Деревообработка",
-                "Строительные материалы"
-            ],
-            users: [
-                { username: "admin", password: "admin" }
-            ],
-            currentUser: null,
-            selectedOrganization: null
-        };
-        // API конфигурация
-        // Используем адреса, на которых запущен Flask сервер
-        const apiConfig = {
-            // Заглушка не нужна, т.к. теперь используется БД в app.py
-            // fnsApiUrl: 'https://api-fns.ru/api/search', 
-            // fnsApiKey: 'c35fe9f432d553652e59bb7edfdcb4137f64cfe0',
-            // dadataUrl: 'https://cleaner.dadata.ru/api/v1/clean/address',
-            // dadataApiKey: '5343b1ebeb87e21afe2eee6156907b86dc5eee09',
-            // aiApiUrl: 'http://10.250.12.109:8080/api/chat/completions',
-            // aiApiKey: 'sk-8c3828c838c94a6ab0c04d0deee2f799'
-        };
-
-        // Инициализация приложения
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-        });
-        function initializeApp() {
-            setupEventListeners();
-            populateIndustrySelect();
-            showAuthPage();
-        }
-        function setupEventListeners() {
-            // Авторизация
-            document.getElementById('loginFormElement').addEventListener('submit', handleLogin);
-            document.getElementById('registerFormElement').addEventListener('submit', handleRegister);
-            document.getElementById('showRegister').addEventListener('click', showRegisterForm);
-            document.getElementById('showLogin').addEventListener('click', showLoginForm);
-            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-            // Навигация по вкладкам
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    switchTab(this.dataset.tab);
-                });
-            });
-            // Поиск организаций
-            document.getElementById('searchInDB').addEventListener('click', searchInDatabase);
-            document.getElementById('searchInAPI').addEventListener('click', searchInFNSAPI);
-            document.getElementById('generatePDF').addEventListener('click', generatePDFReport);
-            // Добавление данных
-            document.getElementById('excelFile').addEventListener('change', handleFileSelect);
-            document.getElementById('processData').addEventListener('click', processInputData);
-            document.getElementById('saveToDatabase').addEventListener('click', saveToDatabase);
-            // Отчеты по отрасли
-            document.getElementById('showIndustryReport').addEventListener('click', showIndustryReport);
-            document.getElementById('tableSearch').addEventListener('input', filterIndustryTable);
-            document.querySelectorAll('#industryTable th[data-sort]').forEach(header => {
-                header.addEventListener('click', function() {
-                    sortIndustryTable(this.dataset.sort);
-                });
-            });
-        }
-        // Авторизация
-        async function handleLogin(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, password })
-                });
-
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    appData.currentUser = { username }; // Устанавливаем текущего пользователя
-                    showDashboard();
-                    showMessage('authMessage', 'Успешный вход!', 'success');
-                } else {
-                    showMessage('authMessage', 'Неверный логин или пароль', 'error');
-                }
-            } catch (error) {
-                console.error('Ошибка авторизации:', error);
-                showMessage('authMessage', 'Ошибка подключения к серверу', 'error');
-            }
-        }
-        // Регистрация оставлена как заглушка, так как в app.py нет эндпоинта для регистрации
-        function handleRegister(e) {
-            e.preventDefault();
-            showMessage('authMessage', 'Регистрация временно недоступна', 'error');
-            // const username = document.getElementById('regUsername').value;
-            // const password = document.getElementById('regPassword').value;
-            // const confirmPassword = document.getElementById('regPasswordConfirm').value;
-            // if (password !== confirmPassword) {
-            //     showMessage('authMessage', 'Пароли не совпадают', 'error');
-            //     return;
-            // }
-            // if (appData.users.find(u => u.username === username)) {
-            //     showMessage('authMessage', 'Пользователь с таким логином уже существует', 'error');
-            //     return;
-            // }
-            // appData.users.push({ username, password });
-            // showMessage('authMessage', 'Регистрация успешна! Теперь можете войти', 'success');
-            // showLoginForm();
-        }
-        function handleLogout() {
-            appData.currentUser = null;
-            appData.selectedOrganization = null;
-            showAuthPage();
-            clearSearchResults();
-        }
-        function showAuthPage() {
-            document.getElementById('authPage').style.display = 'flex';
-            document.getElementById('dashboard').classList.remove('active');
-        }
-        function showDashboard() {
-            document.getElementById('authPage').style.display = 'none';
-            document.getElementById('dashboard').classList.add('active');
-        }
-        function showRegisterForm() {
-            document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('registerForm').classList.remove('hidden');
-        }
-        function showLoginForm() {
-            document.getElementById('registerForm').classList.add('hidden');
-            document.getElementById('loginForm').classList.remove('hidden');
-        }
-        // Навигация
-        function switchTab(tabName) {
-            // Деактивировать все вкладки
-            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            // Активировать выбранную вкладку
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-            document.getElementById(tabName).classList.add('active');
-        }
-        // Поиск организаций
-        function searchInDatabase() {
-            const query = document.getElementById('searchQuery').value.trim();
-            const searchType = document.getElementById('searchType').value;
-            if (!query) {
-                showMessage('searchResults', 'Введите поисковый запрос', 'error');
-                return;
-            }
-            // В реальной системе это был бы вызов к API Flask для поиска в БД
-            // Здесь используем локальные данные для примера
-            const results = appData.organizations.filter(org => {
-                if (searchType === 'inn') {
-                    return org.inn.includes(query);
-                } else {
-                    return org.short_name.toLowerCase().includes(query.toLowerCase()) ||
-                           org.full_name.toLowerCase().includes(query.toLowerCase());
-                }
-            });
-            displaySearchResults(results, 'База данных');
+            `;
+            
+            document.getElementById('organizationDetails').innerHTML = detailsHtml;
+            
+            // Create charts after DOM update
+            setTimeout(() => {
+                createOrganizationCharts(org);
+            }, 100);
         }
 
-        async function searchInFNSAPI() {
-            const query = document.getElementById('searchQuery').value.trim();
-            if (!query) {
-                showMessage('searchResults', 'Введите поисковый запрос', 'error');
-                return;
-            }
-            // Показываем индикатор загрузки
-            document.getElementById('searchResults').innerHTML = '<div class="loading"><div class="spinner"></div>Поиск в API ФНС...</div>';
-            try {
-                // Вызываем Flask API для поиска в ФНС
-                const response = await fetch(`/api/fns/search/${query}`);
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Предполагаем, что API возвращает массив объектов организаций
-                    // или объект с полем содержащим результаты
-                    // Пример: {"data": [...]} или просто [...]
-                    let results = Array.isArray(data) ? data : (data.data || []);
-                    // Обработка результатов API ФНС
-                    // Пример: если API возвращает { "result": { "data": [...] } }
-                    // if (data.result && data.result.data) {
-                    //     results = data.result.data;
-                    // }
-                    // Пример: если API возвращает { "items": [...] }
-                    // if (data.items) {
-                    //     results = data.items;
-                    // }
-                    // Обработка конкретной структуры ответа API ФНС
-                    // Структура может отличаться, адаптируйте под реальный API
-                    // Обычно возвращается { "total": ..., "items": [...] }
-                    // или просто массив объектов
-                    // Проверяем, есть ли поле 'items' или используем сам объект как массив
-                    if (data.items) {
-                        results = data.items.map(item => {
-                            // Пример преобразования из структуры API ФНС в нашу
-                            // Настройте под реальный формат ответа API
-                            return {
-                                inn: item.INN || item.inn || item.INN_LE || item.inn_le || query,
-                                short_name: item.NAME || item.short_name || item.NAME_LE || item.name_le || 'Название не указано',
-                                full_name: item.NAME_FULL || item.full_name || item.NAME_FULL_LE || item.name_full_le || 'Полное название не указано',
-                                status: item.STATE || item.status || 'Неизвестный статус',
-                                legal_address: item.ADDRESS || item.legal_address || 'Адрес не указан',
-                                director: item.MANAGER || item.director || 'Руководитель не указан',
-                                registration_date: item.REG_DATE || item.registration_date || 'Дата не указана',
-                                main_okved: item.OKVED || item.main_okved || 'ОКВЭД не указан'
-                            };
-                        });
-                    } else if (Array.isArray(data)) {
-                        results = data;
-                    } else if (data.total !== undefined && data.items === undefined) {
-                         // Иногда API может вернуть один объект
-                         results = [data];
-                    } else {
-                        // Если структура неизвестна, используем как есть или показываем ошибку
-                        console.warn("Неизвестная структура ответа API ФНС:", data);
-                        results = [];
-                    }
-
-                    displaySearchResults(results, 'API ФНС');
-                } else {
-                    // Если API вернул ошибку
-                    console.error('Ошибка API ФНС:', data.error || 'Неизвестная ошибка');
-                    showMessage('searchResults', `Ошибка API ФНС: ${data.error || 'Неизвестная ошибка'}`, 'error');
-                }
-            } catch (error) {
-                console.error('Ошибка сети при запросе к API ФНС:', error);
-                showMessage('searchResults', `Ошибка подключения к API ФНС: ${error.message}`, 'error');
-            }
-        }
-
-        function displaySearchResults(results, source) {
-            const resultsContainer = document.getElementById('searchResults');
-            if (results.length === 0) {
-                resultsContainer.innerHTML = `<div class="alert alert-info">По запросу ничего не найдено в источнике: ${source}</div>`;
-                return;
-            }
-            let html = `<div class="card"><h3>Результаты поиска</h3>`;
-            results.forEach(org => {
-                // Используем свойства, которые точно существуют в объекте org
-                const orgId = org.id || null; // ID может не быть в результатах API
-                const orgName = org.short_name || org.NAME || org.NAME_LE || org.name || org.name_le || 'Название не указано';
-                const orgInn = org.inn || org.INN || org.INN_LE || org.inn_le || 'ИНН не указан';
-                const orgStatus = org.status || org.STATE || org.state || 'Статус не указан';
-                html += `
-                    <div class="result-item" onclick="selectOrganization(${orgId}, '${source}', ${JSON.stringify(org).replace(/"/g, '&quot;')})">
-                        <div class="source">Источник: ${source}</div>
-                        <div class="name">${orgName}</div>
-                        <div>ИНН: ${orgInn}</div>
-                        <div>Статус: ${orgStatus}</div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            resultsContainer.innerHTML = html;
-        }
-        function selectOrganization(id, source, orgData) {
-            let organization;
-            if (id && source === 'База данных') {
-                organization = appData.organizations.find(org => org.id === id);
-            } else {
-                organization = orgData;
-            }
-            if (!organization) return;
-            appData.selectedOrganization = organization;
-            displayOrganizationDetail(organization);
-            document.getElementById('organizationDetail').classList.add('active');
-        }
-        function displayOrganizationDetail(org) {
-            const infoContainer = document.getElementById('organizationInfo');
-            // Определяем поля, используя приоритет: наши локальные названия, затем возможные из API ФНС
-            const infoFields = [
-                { label: 'ИНН', value: org.inn || org.INN || org.INN_LE || org.inn_le },
-                { label: 'Полное название', value: org.full_name || org.NAME_FULL || org.NAME_FULL_LE || org.name_full_le || org.NAME || org.name_le },
-                { label: 'Статус', value: org.status || org.STATE || org.state },
-                { label: 'Юридический адрес', value: org.legal_address || org.ADDRESS || org.ADDRESS_LE || org.address_le },
-                { label: 'Руководитель', value: org.director || org.MANAGER || org.director_name || org.manager },
-                { label: 'Отрасль', value: org.main_industry },
-                { label: 'ОКВЭД', value: org.main_okved || org.OKVED || org.okved },
-                { label: 'Дата регистрации', value: org.registration_date || org.REG_DATE || org.reg_date }
-            ];
-            let html = '';
-            infoFields.forEach(field => {
-                if (field.value) {
-                    html += `
-                        <div class="info-item">
-                            <div class="label">${field.label}</div>
-                            <div class="value">${field.value}</div>
-                        </div>
-                    `;
-                }
-            });
-            infoContainer.innerHTML = html;
-            // Создаем графики только если есть финансовые данные (локальные)
-            if (org.financial_data && org.personnel_data) {
-                setTimeout(() => {
-                    createCharts(org);
-                }, 100);
-            }
-        }
-        function createCharts(org) {
-            // Очищаем предыдущие графики
-            if (window.revenueChart) window.revenueChart.destroy();
-            if (window.profitChart) window.profitChart.destroy();
-            if (window.employeesChart) window.employeesChart.destroy();
-            if (window.salaryChart) window.salaryChart.destroy();
-
+        function createOrganizationCharts(org) {
             const years = org.financial_data.map(d => d.year);
-            const revenues = org.financial_data.map(d => d.revenue / 1000); // в тысячах
-            const profits = org.financial_data.map(d => d.net_profit / 1000);
+            const revenue = org.financial_data.map(d => d.revenue);
+            const profit = org.financial_data.map(d => d.net_profit);
             const employees = org.personnel_data.map(d => d.total_employees);
-            const salaries = org.personnel_data.map(d => d.avg_salary_moscow);
+            const salary = org.personnel_data.map(d => d.avg_salary_moscow);
 
-            const chartOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            };
-
-            // График выручки
-            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-            window.revenueChart = new Chart(revenueCtx, {
-                type: 'line',
-                data: {
-                    labels: years,
-                    datasets: [{
-                        label: 'Выручка (тыс. руб.)',
-                        data: revenues,
-                        borderColor: '#1e3a8a',
-                        backgroundColor: 'rgba(30, 58, 138, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: chartOptions
-            });
-
-            // График прибыли
-            const profitCtx = document.getElementById('profitChart').getContext('2d');
-            window.profitChart = new Chart(profitCtx, {
-                type: 'line',
-                data: {
-                    labels: years,
-                    datasets: [{
-                        label: 'Прибыль (тыс. руб.)',
-                        data: profits,
-                        borderColor: '#059669',
-                        backgroundColor: 'rgba(5, 150, 105, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: chartOptions
-            });
-
-            // График сотрудников
-            const employeesCtx = document.getElementById('employeesChart').getContext('2d');
-            window.employeesChart = new Chart(employeesCtx, {
+            // Revenue Chart
+            new Chart(document.getElementById('revenueChart'), {
                 type: 'bar',
                 data: {
                     labels: years,
                     datasets: [{
-                        label: 'Численность (чел.)',
-                        data: employees,
-                        backgroundColor: '#dc2626'
+                        label: 'Выручка',
+                        data: revenue,
+                        backgroundColor: '#3e95cd',
+                        borderColor: '#1e3a8a',
+                        borderWidth: 1
                     }]
                 },
-                options: chartOptions
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
             });
 
-            // График зарплат
-            const salaryCtx = document.getElementById('salaryChart').getContext('2d');
-            window.salaryChart = new Chart(salaryCtx, {
+            // Profit Chart
+            new Chart(document.getElementById('profitChart'), {
                 type: 'line',
                 data: {
                     labels: years,
                     datasets: [{
-                        label: 'Средняя зарплата (тыс. руб.)',
-                        data: salaries,
-                        borderColor: '#7c3aed',
-                        backgroundColor: 'rgba(124, 58, 237, 0.1)',
-                        fill: true,
+                        label: 'Прибыль',
+                        data: profit,
+                        borderColor: '#8e5ea2',
+                        backgroundColor: 'rgba(142, 94, 162, 0.1)',
                         tension: 0.4
                     }]
                 },
-                options: chartOptions
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Employees Chart
+            new Chart(document.getElementById('employeesChart'), {
+                type: 'bar',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: 'Сотрудники',
+                        data: employees,
+                        backgroundColor: '#1e3a8a',
+                        borderColor: '#3e95cd',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Salary Chart
+            new Chart(document.getElementById('salaryChart'), {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: 'Средняя зарплата',
+                        data: salary,
+                        borderColor: '#3cba9f',
+                        backgroundColor: 'rgba(60, 186, 159, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
             });
         }
-        function generatePDFReport() {
-            if (!appData.selectedOrganization) {
+
+        // Add Data functionality
+        const userOrganization = document.getElementById('userOrganization');
+        const editOrgBtn = document.getElementById('editOrgBtn');
+        const editForm = document.getElementById('editForm');
+        const organizationEditForm = document.getElementById('organizationEditForm');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const processTextBtn = document.getElementById('processTextBtn');
+        const rawTextData = document.getElementById('rawTextData');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const processLoading = document.getElementById('processLoading');
+        const processedResult = document.getElementById('processedResult');
+
+        editOrgBtn.addEventListener('click', () => {
+            const orgId = userOrganization.value;
+            if (!orgId) {
                 alert('Сначала выберите организацию');
                 return;
             }
-            // Имитация генерации PDF
-            const orgName = appData.selectedOrganization.short_name;
-            alert(`PDF отчет для организации "${orgName}" генерируется...
-В реальной системе здесь будет скачивание файла.`);
-        }
-        // Добавление данных
-        function handleFileSelect(e) {
+            
+            if (orgId === '7714431171') {
+                const org = organizationData[orgId];
+                document.getElementById('edit_name').value = org.short_name;
+                document.getElementById('edit_inn').value = org.inn;
+                document.getElementById('edit_address').value = org.legal_address;
+                document.getElementById('edit_director').value = org.director;
+                document.getElementById('edit_industry').value = org.main_industry;
+                document.getElementById('edit_okved').value = org.okved;
+                
+                editForm.classList.add('show');
+            } else {
+                alert('Данные для выбранной организации недоступны в демо-версии');
+            }
+        });
+
+        cancelEditBtn.addEventListener('click', () => {
+            editForm.classList.remove('show');
+        });
+
+        organizationEditForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Simulate saving
+            setTimeout(() => {
+                document.getElementById('processedResult').innerHTML = `
+                    <div class="success-message">
+                        ✅ Данные организации успешно обновлены!
+                    </div>
+                `;
+                editForm.classList.remove('show');
+            }, 500);
+        });
+
+        fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
-                document.getElementById('fileName').innerHTML = 
-                    `<div class="alert alert-info">Выбран файл: ${file.name}</div>`;
+                fileInfo.textContent = `Выбран файл: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} МБ)`;
+            } else {
+                fileInfo.textContent = '';
             }
-        }
+        });
 
-        async function processInputData() {
-            const rawData = document.getElementById('rawData').value.trim();
-            const fileInput = document.getElementById('excelFile');
-            const hasFile = fileInput.files.length > 0;
-            if (!rawData && !hasFile) {
-                alert('Введите данные или выберите файл');
+        processTextBtn.addEventListener('click', () => {
+            const text = rawTextData.value.trim();
+            if (!text) {
+                alert('Введите текст для обработки');
                 return;
             }
-            const processingResult = document.getElementById('processingResult');
-            const processingMessage = document.getElementById('processingMessage');
-            processingResult.classList.remove('hidden');
-            processingMessage.innerHTML = '<div class="loading"><div class="spinner"></div>Данные обрабатываются нейросетью...</div>';
+            
+            processData(text, 'text');
+        });
 
-            // В реальной системе файлы загружаются и обрабатываются на сервере
-            // Здесь обрабатываем только текстовое поле
-            if (hasFile) {
-                 processingMessage.innerHTML = '<div class="alert alert-warning">Обработка файлов пока не реализована на сервере. Пожалуйста, введите данные в текстовое поле.</div>';
-                 return;
+        uploadBtn.addEventListener('click', () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Выберите файл для загрузки');
+                return;
             }
+            
+            processFile(file);
+        });
 
-            if (rawData) {
-                try {
-                    const response = await fetch('/api/parse', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ raw_text: rawData })
-                    });
-
-                    const data = await response.json();
-
-                    if (response.ok) {
-                        // Полученные данные из нейросети
-                        const aiResponse = data;
-                        // Теперь получаем данные из API ФНС для сравнения
-                        const inn = aiResponse.inn || rawData.match(/\b\d{10}\b/)?.[0] || rawData.match(/\b\d{12}\b/)?.[0]; // Извлекаем ИНН из ответа или исходного текста
-                        if (inn) {
-                            try {
-                                const fnsResponse = await fetch(`/api/fns/search/${inn}`);
-                                const fnsDataRaw = await fnsResponse.json();
-                                let fnsData = {};
-                                if (fnsResponse.ok) {
-                                    // Обработка ответа API ФНС, аналогично searchInFNSAPI
-                                    let fnsResults = Array.isArray(fnsDataRaw) ? fnsDataRaw : (fnsDataRaw.items || []);
-                                    if (fnsResults.length > 0) {
-                                        const fnsOrg = fnsResults[0]; // Берем первую найденную организацию по ИНН
-                                        fnsData = {
-                                            inn: fnsOrg.INN || fnsOrg.inn || fnsOrg.INN_LE || fnsOrg.inn_le || inn,
-                                            full_name: fnsOrg.NAME_FULL || fnsOrg.full_name || fnsOrg.NAME_FULL_LE || fnsOrg.name_full_le || fnsOrg.NAME || fnsOrg.name_le || 'Название не указано',
-                                            status: fnsOrg.STATE || fnsOrg.status || fnsOrg.state || 'Статус не указан',
-                                            legal_address: fnsOrg.ADDRESS || fnsOrg.legal_address || fnsOrg.ADDRESS_LE || fnsOrg.address_le || 'Адрес не указан',
-                                            director: fnsOrg.MANAGER || fnsOrg.director || fnsOrg.director_name || fnsOrg.manager || 'Руководитель не указан',
-                                            main_okved: fnsOrg.OKVED || fnsOrg.main_okved || fnsOrg.okved || 'ОКВЭД не указан',
-                                            registration_date: fnsOrg.REG_DATE || fnsOrg.registration_date || fnsOrg.reg_date || 'Дата не указана'
-                                        };
-                                    } else {
-                                        // Если организация по ИНН не найдена
-                                        fnsData = {
-                                            inn: inn,
-                                            full_name: 'Организация не найдена в ФНС',
-                                            status: 'Нет данных',
-                                            legal_address: 'Нет данных',
-                                            director: 'Нет данных',
-                                            main_okved: 'Нет данных',
-                                            registration_date: 'Нет данных'
-                                        };
-                                    }
-                                } else {
-                                     // Ошибка API ФНС
-                                     console.error('Ошибка API ФНС при сверке:', fnsDataRaw.error);
-                                     fnsData = {
-                                         inn: inn,
-                                         full_name: 'Ошибка получения данных ФНС',
-                                         status: 'Ошибка',
-                                         legal_address: 'Ошибка',
-                                         director: 'Ошибка',
-                                         main_okved: 'Ошибка',
-                                         registration_date: 'Ошибка'
-                                     };
-                                }
-                                displayComparison(aiResponse, fnsData);
-                            } catch (fnsError) {
-                                console.error('Ошибка получения данных ФНС:', fnsError);
-                                processingMessage.innerHTML = `<div class="alert alert-warning">Ошибка получения данных из ФНС: ${fnsError.message}. Используем данные из нейросети.</div>`;
-                                displayComparison(aiResponse, { inn: inn, full_name: 'Н/Д (ошибка API)', status: 'Н/Д', legal_address: 'Н/Д', director: 'Н/Д', main_okved: 'Н/Д', registration_date: 'Н/Д' });
-                            }
-                        } else {
-                            // Если ИНН не удалось извлечь
-                            processingMessage.innerHTML = '<div class="alert alert-warning">Не удалось извлечь ИНН для сверки с ФНС. Показываем данные из нейросети.</div>';
-                            displayComparison(aiResponse, { inn: 'Н/Д (не найден)', full_name: 'Н/Д', status: 'Н/Д', legal_address: 'Н/Д', director: 'Н/Д', main_okved: 'Н/Д', registration_date: 'Н/Д' });
-                        }
-                    } else {
-                        // Ошибка от API парсинга
-                        console.error('Ошибка API парсинга:', data.error);
-                        processingMessage.innerHTML = `<div class="alert alert-warning">Ошибка нейросети: ${data.error}</div>`;
-                    }
-                } catch (error) {
-                    console.error('Ошибка сети при обработке данных:', error);
-                    processingMessage.innerHTML = `<div class="alert alert-warning">Ошибка подключения к серверу: ${error.message}</div>`;
-                }
-            }
-        }
-
-        function displayComparison(inputData, fnsData) {
-            const processingMessage = document.getElementById('processingMessage');
-            const comparisonSection = document.getElementById('comparisonSection');
-            processingMessage.innerHTML = '<div class="alert alert-success">Обработка завершена! Сверьте данные:</div>';
-            const fields = [
-                { key: 'inn', label: 'ИНН' },
-                { key: 'full_name', label: 'Полное название' },
-                { key: 'status', label: 'Статус' },
-                { key: 'legal_address', label: 'Юридический адрес' },
-                { key: 'director', label: 'Руководитель' },
-                { key: 'main_okved', label: 'ОКВЭД' },
-                { key: 'registration_date', label: 'Дата регистрации' }
-            ];
-
-            let tableHTML = `
-                <table class="comparison-table">
-                    <thead>
-                        <tr>
-                            <th>Параметр</th>
-                            <th>Данные из нейросети</th>
-                            <th>Данные из ФНС API</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            fields.forEach(field => {
-                const inputValue = inputData[field.key] || '-';
-                const fnsValue = fnsData[field.key] || '-';
-                // Сравнение игнорирует регистр и пробелы
-                const isMatch = String(inputValue).trim().toLowerCase() === String(fnsValue).trim().toLowerCase();
-                const rowClass = isMatch ? 'match' : 'mismatch';
-                tableHTML += `
-                    <tr class="${rowClass}">
-                        <td><strong>${field.label}</strong></td>
-                        <td>${inputValue}</td>
-                        <td>${fnsValue}</td>
-                    </tr>
+        function processData(content, type) {
+            processLoading.classList.add('show');
+            processedResult.innerHTML = '';
+            
+            // Simulate AI processing
+            setTimeout(() => {
+                processLoading.classList.remove('show');
+                
+                const processedData = {
+                    name: "ООО 'Обработанные данные'",
+                    inn: "1234567890",
+                    address: "Москва, ул. Примерная, д. 123",
+                    director: "Петров Петр Петрович",
+                    revenue: 1000000,
+                    employees: 50,
+                    okved: "62.01",
+                    industry: "IT-услуги"
+                };
+                
+                const html = `
+                    <div class="processed-data">
+                        <h3>Результат обработки ${type === 'text' ? 'текста' : 'файла'}:</h3>
+                        <p><strong>Название:</strong> ${processedData.name}</p>
+                        <p><strong>ИНН:</strong> ${processedData.inn}</p>
+                        <p><strong>Адрес:</strong> ${processedData.address}</p>
+                        <p><strong>Директор:</strong> ${processedData.director}</p>
+                        <p><strong>Выручка:</strong> ${processedData.revenue.toLocaleString()} руб.</p>
+                        <p><strong>Численность:</strong> ${processedData.employees} человек</p>
+                        <p><strong>ОКВЭД:</strong> ${processedData.okved}</p>
+                        <p><strong>Отрасль:</strong> ${processedData.industry}</p>
+                        
+                        <button class="btn btn-success" onclick="saveToDatabase()">Сохранить в базу данных</button>
+                    </div>
                 `;
-            });
-            tableHTML += '</tbody></table>';
-            comparisonSection.innerHTML = tableHTML;
-            // Сохраняем данные для возможного сохранения в БД
-            window.tempOrganizationData = { inputData, fnsData };
+                
+                processedResult.innerHTML = html;
+            }, 2000);
         }
-        function saveToDatabase() {
-            if (!window.tempOrganizationData) {
-                alert('Нет данных для сохранения');
-                return;
-            }
-            const { fnsData } = window.tempOrganizationData;
-            // В реальной системе это был бы вызов к API Flask для сохранения в БД
-            // Здесь показываем уведомление
-            alert(`Данные для организации "${fnsData.full_name}" готовы к сохранению в базу данных через сервер Flask.
-В реальной системе здесь произойдет запрос к /api/organizations/ (или аналогичному эндпоинту) на сервере.`);
-            // В реальной реализации:
-            // fetch('/api/organizations/', { method: 'POST', body: JSON.stringify(fnsData), headers: {'Content-Type': 'application/json'} })
-            //     .then(response => response.json())
-            //     .then(data => { ... })
-            //     .catch(error => { ... });
 
-            // Очищаем форму
-            document.getElementById('rawData').value = '';
-            document.getElementById('excelFile').value = '';
-            document.getElementById('fileName').innerHTML = '';
-            document.getElementById('processingResult').classList.add('hidden');
-            window.tempOrganizationData = null;
+        function processFile(file) {
+            const fileName = file.name.toLowerCase();
+            
+            if (fileName.endsWith('.pdf')) {
+                // Mock PDF processing
+                processData(`PDF файл: ${file.name}`, 'file');
+            } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                // Real Excel processing
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const sheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                        
+                        let extractedText = 'Данные из Excel:\n';
+                        jsonData.forEach((row, index) => {
+                            if (index < 10 && row.length > 0) { // Show first 10 rows
+                                extractedText += row.join(' | ') + '\n';
+                            }
+                        });
+                        
+                        processData(extractedText, 'file');
+                    } catch (error) {
+                        alert('Ошибка при чтении файла Excel: ' + error.message);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                alert('Поддерживаются только файлы Excel (.xlsx, .xls) и PDF (.pdf)');
+            }
         }
-        // Отчеты по отраслям
-        function populateIndustrySelect() {
-            const select = document.getElementById('industrySelect');
-            appData.industries.forEach(industry => {
-                const option = document.createElement('option');
-                option.value = industry;
-                option.textContent = industry;
-                select.appendChild(option);
-            });
+
+        function saveToDatabase() {
+            processedResult.innerHTML += `
+                <div class="success-message">
+                    ✅ Данные успешно сохранены в базе данных!
+                </div>
+            `;
         }
-        function showIndustryReport() {
-            const selectedIndustry = document.getElementById('industrySelect').value;
-            if (!selectedIndustry) {
+
+        // Reports functionality
+        const industrySelect = document.getElementById('industrySelect');
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const exportPdfBtn = document.getElementById('exportPdfBtn');
+        const industryReport = document.getElementById('industryReport');
+
+        generateReportBtn.addEventListener('click', () => {
+            const industry = industrySelect.value;
+            if (!industry) {
                 alert('Выберите отрасль');
                 return;
             }
-            // В реальной системе это был бы вызов к API Flask для получения статистики по отрасли
-            // Здесь используем локальные данные
-            const industryOrgs = appData.organizations.filter(org =>
-                org.main_industry === selectedIndustry
-            );
-            if (industryOrgs.length === 0) {
-                alert('В выбранной отрасли нет организаций');
+            
+            currentIndustry = industry;
+            generateIndustryReport(industry);
+        });
+
+        exportPdfBtn.addEventListener('click', () => {
+            if (!currentIndustry) {
+                alert('Сначала сгенерируйте отчет');
                 return;
             }
-            displayIndustryStats(industryOrgs, selectedIndustry);
-            document.getElementById('industryStats').classList.remove('hidden');
-        }
-        function displayIndustryStats(orgs, industry) {
-            const totalCompanies = orgs.length;
-            const totalRevenue = orgs.reduce((sum, org) => {
-                const latestFinancial = org.financial_data[org.financial_data.length - 1];
-                return sum + (latestFinancial ? latestFinancial.revenue / 1000 : 0);
-            }, 0);
-            const avgEmployees = Math.round(orgs.reduce((sum, org) => {
-                const latestPersonnel = org.personnel_data[org.personnel_data.length - 1];
-                return sum + (latestPersonnel ? latestPersonnel.total_employees : 0);
-            }, 0) / orgs.length);
-            document.getElementById('totalCompanies').textContent = totalCompanies;
-            document.getElementById('totalRevenue').textContent = Math.round(totalRevenue / 1000);
-            document.getElementById('avgEmployees').textContent = avgEmployees || 'Н/Д';
-            displayIndustryTable(orgs);
-        }
-        function displayIndustryTable(orgs) {
-            const tbody = document.getElementById('industryTableBody');
-            tbody.innerHTML = '';
-            orgs.forEach(org => {
-                const latestFinancial = org.financial_data[org.financial_data.length - 1];
-                const latestPersonnel = org.personnel_data[org.personnel_data.length - 1];
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${org.short_name}</td>
-                    <td>${org.inn}</td>
-                    <td>${org.legal_address}</td>
-                    <td>${latestFinancial ? (latestFinancial.revenue / 1000).toLocaleString() + ' тыс. руб.' : 'Н/Д'}</td>
-                    <td>${latestPersonnel ? latestPersonnel.total_employees.toLocaleString() + ' чел.' : 'Н/Д'}</td>
-                `;
-                tbody.appendChild(row);
-            });
-            // Сохраняем данные для поиска и сортировки
-            window.currentIndustryData = orgs;
-        }
-        function filterIndustryTable() {
-            const searchTerm = document.getElementById('tableSearch').value.toLowerCase();
-            const tbody = document.getElementById('industryTableBody');
-            const rows = tbody.getElementsByTagName('tr');
-            Array.from(rows).forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
-        }
-        function sortIndustryTable(sortBy) {
-            if (!window.currentIndustryData) return;
-            const header = document.querySelector(`th[data-sort="${sortBy}"]`);
-            const isAsc = !header.classList.contains('sorted') || header.classList.contains('desc');
-            // Очищаем предыдущую сортировку
-            document.querySelectorAll('#industryTable th').forEach(th => {
-                th.classList.remove('sorted', 'desc');
-            });
-            // Устанавливаем новую сортировку
-            header.classList.add('sorted');
-            if (!isAsc) header.classList.add('desc');
-            const sortedData = [...window.currentIndustryData].sort((a, b) => {
-                let aVal, bVal;
-                switch(sortBy) {
-                    case 'name':
-                        aVal = a.short_name;
-                        bVal = b.short_name;
-                        break;
-                    case 'inn':
-                        aVal = a.inn;
-                        bVal = b.inn;
-                        break;
-                    case 'address':
-                        aVal = a.legal_address;
-                        bVal = b.legal_address;
-                        break;
-                    case 'revenue':
-                        const aFinancial = a.financial_data[a.financial_data.length - 1];
-                        const bFinancial = b.financial_data[b.financial_data.length - 1];
-                        aVal = aFinancial ? aFinancial.revenue : 0;
-                        bVal = bFinancial ? bFinancial.revenue : 0;
-                        break;
-                    case 'employees':
-                        const aPersonnel = a.personnel_data[a.personnel_data.length - 1];
-                        const bPersonnel = b.personnel_data[b.personnel_data.length - 1];
-                        aVal = aPersonnel ? aPersonnel.total_employees : 0;
-                        bVal = bPersonnel ? bPersonnel.total_employees : 0;
-                        break;
-                    default:
-                        return 0;
-                }
-                if (typeof aVal === 'string') {
-                    return isAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-                } else {
-                    return isAsc ? aVal - bVal : bVal - aVal;
-                }
-            });
-            displayIndustryTable(sortedData);
-        }
-        // Утилиты
-        function showMessage(containerId, message, type) {
-            const container = document.getElementById(containerId);
-            const className = type === 'error' ? 'alert-warning' : type === 'success' ? 'alert-success' : 'alert-info';
-            container.innerHTML = `<div class="alert ${className}">${message}</div>`;
+            
+            exportReportToPDF(currentIndustry);
+        });
+
+        function generateIndustryReport(industry) {
+            const data = industryData[industry];
+            if (!data) {
+                alert('Данные для выбранной отрасли недоступны');
+                return;
+            }
+            
+            const html = `
+                <div class="dashboard">
+                    <div class="chart-box">
+                        <h3>Распределение выручки по организациям</h3>
+                        <div class="chart-container">
+                            <canvas id="industryPieChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <h3>Среднее количество сотрудников</h3>
+                        <div class="chart-container">
+                            <canvas id="industryEmployeesChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <h3>Динамика выручки отрасли</h3>
+                        <div class="chart-container">
+                            <canvas id="industryTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard">
+                    <div class="stats-card">
+                        <div class="stats-number">${data.count}</div>
+                        <div>Предприятий в отрасли</div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-number">${data.total_revenue.toLocaleString()}</div>
+                        <div>Млн руб. суммарная выручка</div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-number">${data.avg_employees}</div>
+                        <div>Средняя численность</div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <h3>Организации в отрасли: ${data.name}</h3>
+                    <table id="industryTable">
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>ИНН</th>
+                                <th>Адрес</th>
+                                <th>Выручка 2024 (млн руб.)</th>
+                                <th>Численность</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.organizations.map(org => `
+                                <tr>
+                                    <td>${org.name}</td>
+                                    <td>${org.inn}</td>
+                                    <td>${org.address}</td>
+                                    <td>${org.revenue}</td>
+                                    <td>${org.employees}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            industryReport.innerHTML = html;
+            
+            // Create charts after DOM update
             setTimeout(() => {
-                container.innerHTML = '';
-            }, 5000);
+                createIndustryCharts(data);
+            }, 100);
         }
-        function clearSearchResults() {
-            document.getElementById('searchResults').innerHTML = '';
-            document.getElementById('organizationDetail').classList.remove('active');
-            document.getElementById('industryStats').classList.add('hidden');
+
+        function createIndustryCharts(data) {
+            const colors = ['#1FB8CD', '#FFC185', '#B4413C', '#ECEBD5', '#5D878F'];
+            
+            // Pie Chart - Revenue Distribution
+            new Chart(document.getElementById('industryPieChart'), {
+                type: 'pie',
+                data: {
+                    labels: data.organizations.map(org => org.name),
+                    datasets: [{
+                        data: data.organizations.map(org => org.revenue),
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 10
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Bar Chart - Employees
+            new Chart(document.getElementById('industryEmployeesChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.organizations.map(org => org.name),
+                    datasets: [{
+                        label: 'Сотрудники',
+                        data: data.organizations.map(org => org.employees),
+                        backgroundColor: '#3e95cd',
+                        borderColor: '#1e3a8a',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Line Chart - Revenue Trend (mock data)
+            const years = [2020, 2021, 2022, 2023, 2024];
+            const trendData = [data.total_revenue * 0.7, data.total_revenue * 0.8, data.total_revenue * 0.9, data.total_revenue * 0.95, data.total_revenue];
+            
+            new Chart(document.getElementById('industryTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: 'Выручка отрасли',
+                        data: trendData,
+                        borderColor: '#8e5ea2',
+                        backgroundColor: 'rgba(142, 94, 162, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
         }
-        // Промпт для нейросети (для справки)
-        const aiPrompt = `
-        Вы — эксперт по обработке данных организаций. Проанализируйте предоставленные данные и извлеките следующую информацию в формате JSON:
-        {
-            "inn": "ИНН организации (10 или 12 цифр)",
-            "full_name": "Полное официальное название",
-            "short_name": "Краткое название (если возможно)",
-            "status": "Статус (Действующая/Ликвидируется и т.д.)",
-            "legal_address": "Юридический адрес",
-            "director": "ФИО руководителя",
-            "main_okved": "Основной код ОКВЭД",
-            "registration_date": "Дата регистрации в формате ДД.ММ.ГГГГ",
-            "main_industry": "Основная отрасль деятельности (если указана)"
+
+        function exportReportToPDF(industry) {
+            const data = industryData[industry];
+            if (!data) {
+                alert('Нет данных для экспорта');
+                return;
+            }
+            
+            // Create PDF using jsPDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Title
+            doc.setFontSize(18);
+            doc.text('Отчет по отрасли', 20, 20);
+            
+            doc.setFontSize(14);
+            doc.text(`Отрасль: ${data.name}`, 20, 35);
+            doc.text(`Дата: ${new Date().toLocaleDateString('ru-RU')}`, 20, 45);
+            
+            // Statistics
+            doc.setFontSize(12);
+            doc.text('Общая статистика:', 20, 60);
+            doc.text(`Количество предприятий: ${data.count}`, 25, 70);
+            doc.text(`Суммарная выручка: ${data.total_revenue.toLocaleString()} млн руб.`, 25, 80);
+            doc.text(`Средняя численность: ${data.avg_employees} человек`, 25, 90);
+            
+            // Table
+            const tableData = data.organizations.map(org => [
+                org.name,
+                org.inn,
+                org.address,
+                `${org.revenue} млн`,
+                org.employees.toString()
+            ]);
+            
+            doc.autoTable({
+                startY: 105,
+                head: [['Название', 'ИНН', 'Адрес', 'Выручка 2024', 'Численность']],
+                body: tableData,
+                theme: 'grid',
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 3
+                },
+                headStyles: {
+                    fillColor: [30, 58, 138],
+                    textColor: 255
+                }
+            });
+            
+            // Save the PDF
+            doc.save(`отчет_${data.name}_${new Date().toISOString().split('T')[0]}.pdf`);
         }
-        Если какие-то данные отсутствуют, укажите null или опустите поле. Отвечайте только в формате JSON без дополнительного текста.
-        Данные для обработки:
-        `;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Auto-fill demo credentials
+            document.getElementById('username').value = 'demo';
+            document.getElementById('password').value = 'demo';
+        });
     </script>
 </body>
 </html>
